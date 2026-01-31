@@ -1,0 +1,67 @@
+/* prettier-ignore */
+.pixel-art {
+    display: inline-block;
+    width: 2px;
+    height: 2px;
+    background-color: transparent;
+    margin-right: 112px;
+    margin-bottom: 200px;
+    
+    /* Cada linha abaixo representa uma coordenada (X, Y) */
+    box-shadow: 
+        #3f005d 0 0, 
+        #3f005d 0 1px, 
+        #3f005d 0 2px, 
+        #3f005d 0 3px, 
+        #3f005d 0 4px, 
+        #3f005d 0 5px, 
+        #3f005d 0 6px, 
+        #3f005d 0 7px, 
+        #3f005d 0 8px, 
+        #3f005d 0 9px, 
+        #3f005d 0 10px, 
+        #3f005d 0 11px, 
+        #3f005d 0 12px, 
+        #3f005d 0 13px, 
+        #3f005d 0 14px, 
+        #3f005d 0 15px, 
+        #3f005d 0 16px, 
+        #3f005d 0 17px, 
+        #3f005d 0 18px, 
+        #3f005d 0 19px, 
+        #3f005d 0 20px, 
+        #3f005d 0 21px, 
+        #3f005d 0 22px, 
+        #3f005d 0 23px, 
+        #3f005d 0 24px, 
+        #3f005d 0 25px, 
+        #3f005d 0 26px, 
+        #3f005d 0 27px, 
+        #3f005d 0 28px, 
+        #3f005d 0 29px, 
+        #3f005d 0 30px, 
+        #3f005d 0 31px, 
+        #3f005d 0 32px, 
+        #3f005d 0 33px, 
+        #3f005d 0 34px, 
+        #3f005d 0 35px, 
+        #3f005d 0 36px, 
+        #3f005d 0 37px, 
+        #3f005d 0 38px, 
+        #3f005d 0 39px, 
+        #3f005d 0 40px, 
+        #3f005d 0 41px, 
+        #3f005d 0 42px, 
+        #3f005d 0 43px, 
+        #3f005d 0 44px, 
+        #3f005d 0 45px, 
+        #3f005d 0 46px, 
+        #3f005d 0 47px, 
+        #3f005d 0 48px, 
+        #3f005d 0 49px, 
+        #3f005d 0 50px, 
+        #3f005d 0 51px, 
+        /* ... continua ... */
+        #3f005d 16px 50px, 
+        #3f005d 16px 51px;
+}
