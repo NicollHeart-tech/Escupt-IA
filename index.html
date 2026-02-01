@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Escupt IA - NexusAI</title>
+    
+    <style>
+        /* --- ESTILO VISUAL NEXUSAI --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #1a1a2e; color: white; height: 100vh; display: flex; overflow: hidden; }
+
+        #sidebar { 
+            width: 260px; 
+            background-color: #0f0f1a; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 15px; 
+            border-right: 1px solid #2d2d44; 
+        }
+
+        .new-chat-btn {
+            background-color: #8b5cf6;
+            color: white; border: none; padding: 12px; border-radius: 8px;
+            cursor: pointer; font-weight: bold; margin-bottom: 20px;
+            transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .new-chat-btn:hover { background-color: #7c3aed; }
+
+        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+
+        .history-item {
+            padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;
+            color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.2s;
+        }
+        .history-item:hover { background-color: #2d2d44; color: white; }
+        .history-item.active { background-color: #2d2d44; color: white; border-left: 3px solid #8b5cf6; }
+
+        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; }
+        #chatWindow { flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px; display: flex; flex-direction: column; gap: 15px; }
+
+        .logo-container { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            text-align: center; color: #4a4a6a;
+        }
+        .logo-container h1 { font-size: 2.5rem; margin-bottom: 10px; color: #8b5cf6; }
+
+        /* MENSAGENS */
+        .message { max-width: 80%; padding: 12px 18px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; }
+        .user-message { align-self: flex-end; background-color: #4c1d95; color: white; border-bottom-right-radius: 2px; }
+        .ai-message { align-self: flex-start; background-color: #2d2d44; color: #e2e2e2; border-bottom-left-radius: 2px; white-space: pre-wrap; }
+
+        /* INPUT AREA */
+        .input-area { 
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; 
+            background: linear-gradient(transparent, #1a1a2e 40%);
+            display: flex; justify-content: center; 
+        }
+        .input-box { 
+            width: 100%; max-width: 700px; padding: 15px 20px; 
+            background-color: #2d2d44; border: 1px solid #3f3f5e; 
+            border-radius: 30px; color: white; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <aside id="sidebar">
+        <button class="new-chat-btn" onclick="startNewChat()">
+            <span>+</span> Nova Conversa
+        </button>
+        <div class="history-list" id="historyList"></div>
+    </aside>
+
+    <main id="main-content">
+        <div id="chatWindow">
+            <div class="logo-container" id="welcomeScreen">
+                <h1>Escupt IA</h1>
+                <p>O cérebro da NexusAI está pronto.</p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" class="input-box" id="userInput" placeholder="Envie uma mensagem para a Escupt IA..." autocomplete="off">
+        </div>
+    </main>
+
+    <script>
+        const input = document.getElementById('userInput');
+        const chat = document.getElementById('chatWindow');
+        const welcome = document.getElementById('welcomeScreen');
+        const historyList = document.getElementById('historyList');
+
+        // IMPORTANTE: Use o nome do modelo que você baixou no Ollama
+        const MODELO_NOME = "EscuptIA_Oficial"; 
+
+        // Carregar histórico salvo no navegador ao abrir o site
+        window.onload = () => {
+            const salvo = JSON.parse(localStorage.getItem('escupt_history') || "[]");
+            salvo.forEach(texto => addSidebarItem(texto, false));
+        };
+
+        function startNewChat() {
+            chat.innerHTML = ''; 
+            chat.appendChild(welcome);
+            welcome.style.display = 'block';
+            document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+        }
+
+        input.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && input.value.trim() !== "") {
+                if (welcome) welcome.style.display = 'none';
+
+                const userText = input.value;
+                input.value = "";
+
+                addMessage(userText, 'user-message');
+                const loadingDiv = addMessage("Escupt IA está processando...", 'ai-message');
+                chat.scrollTop = chat.scrollHeight;
+
+try {
+    // Chamada direta para o Ollama no seu PC (IP 127.0.0.1)
+    // No seu fetch, troque o 127.0.0.1 pelo link do ngrok
+const response = await fetch('https://chorographically-nonallegiance-rubye.ngrok-free.dev/api/generate', {
+    method: 'POST',
+        mode: 'cors', // Força o modo de compartilhamento
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            model: EscuptIA_Oficial,
+            prompt: userText,
+            stream: false
+        })
+    });
+
+    const data = await response.json();
+
+                    if (data.response) {
+                        loadingDiv.textContent = data.response;
+                        addSidebarItem(userText, true); // Salva no histórico
+                    } else {
+                        loadingDiv.textContent = "Desculpe, servidores não responderam.";
+                    }
+
+                } catch (error) {
+                    loadingDiv.textContent = "Desculpe, ocorreu um erro ao conectar com o servidor.";
+                    console.error(error);
+                }
+                
+                chat.scrollTop = chat.scrollHeight;
+            }
+        });
+
+        function addSidebarItem(title, save) {
+            const btn = document.createElement('div');
+            btn.className = 'history-item';
+            btn.textContent = title;
+            historyList.insertBefore(btn, historyList.firstChild);
+
+            if (save) {
+                const historico = JSON.parse(localStorage.getItem('escupt_history') || "[]");
+                historico.push(title);
+                localStorage.setItem('escupt_history', JSON.stringify(historico));
+            }
+        }
+
+        function addMessage(text, className) {
+            const div = document.createElement('div');
+            div.className = 'message ' + className;
+            div.textContent = text;
+            chat.appendChild(div);
+            return div;
+        }
+    </script>
+</body>
+</html>
