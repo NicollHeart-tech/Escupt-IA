@@ -1,22 +1,16 @@
 {
-  "name": "Escupt IA Oficial",
-  "short_name": "EscuptIA",
-  "start_url": "./index.html",
+  "name": "Escupt IA",
+  "short_name": "Escupt",
+  "description": "Interface Escupt IA",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#2a004f",
   "theme_color": "#2a004f",
   "icons": [
     {
       "src": "logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "logo.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     }
   ]
 }
