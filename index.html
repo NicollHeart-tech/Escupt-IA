@@ -8,6 +8,8 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8b5cf6">
     <link rel="apple-touch-icon" href="logo.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -28,16 +30,17 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; display: flex; overflow: hidden; }
 
-        /* SIDEBAR */
+        /* SIDEBAR & OVERLAY */
         #sidebar { 
             width: 260px; background-color: var(--bg-sidebar); 
             display: flex; flex-direction: column; padding: 20px; 
             z-index: 5000; transition: transform 0.3s ease;
+            position: fixed; left: -260px; height: 100%;
         }
         #sidebar.active { transform: translateX(260px); }
         #overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: none; z-index: 4500; }
 
-        /* BOTÃO DE INSTALAÇÃO (O que o Chrome exige) */
+        /* BOTÃO INSTALAR PWA */
         #installApp {
             display: none; background-color: #22c55e; color: white; border: none; 
             padding: 12px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold;
@@ -45,7 +48,7 @@
 
         #menu-toggle { position: fixed; top: 15px; left: 15px; z-index: 2000; cursor: pointer; font-size: 1.8rem; }
         
-        /* BOTÃO DE CONFIGURAÇÕES COM SUA IMAGEM */
+        /* BOTÃO CONFIGURAÇÕES (SUAS IMAGENS) */
         .settings-btn { 
             position: fixed; top: 15px; right: 15px; cursor: pointer; z-index: 2000; 
             width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
@@ -55,25 +58,30 @@
         #theme-menu {
             position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
             padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 4000; min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 4000; min-width: 180px;
         }
-        .t-btn { border: none; padding: 12px; border-radius: 10px; cursor: pointer; color: white; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .t-btn { border: none; padding: 12px; border-radius: 10px; cursor: pointer; color: white; font-weight: bold; display: flex; align-items: center; gap: 10px; text-align: left; }
         .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
 
-        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+        /* CONTEÚDO PRINCIPAL */
+        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; height: 100%; }
+        
+        .welcome-screen { text-align: center; margin-top: 25vh; flex: 1; }
+        .welcome-screen img { width: 120px; margin-bottom: 20px; transition: 0.3s; }
+
         #chatWindow { flex: 1; overflow-y: auto; padding: 80px 10% 160px; display: none; flex-direction: column; gap: 15px; }
-        .message { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; }
+        .message { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; }
         .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
 
+        /* ÁREA DE INPUT */
         .footer-area { position: absolute; bottom: 0; left: 0; right: 0; background-color: var(--bg-main); padding: 15px 10px 40px; display: flex; justify-content: center; z-index: 1000; }
         .input-wrapper { width: 95%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; display: flex; align-items: center; padding: 5px 20px; }
         .input-box { flex: 1; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
 
-        @media (max-width: 768px) {
-            #sidebar { position: fixed; left: -260px; height: 100%; }
-            #sidebar.active { transform: translateX(260px); }
-            #chatWindow { padding: 80px 15px 150px; }
+        @media (min-width: 769px) {
+            #sidebar { left: 0; position: relative; }
+            #menu-toggle, #overlay { display: none; }
         }
     </style>
 </head>
@@ -83,8 +91,8 @@
     <div id="overlay" onclick="closeSidebar()"></div>
 
     <aside id="sidebar">
-        <button id="installApp">📥 Instalar App</button>
-        <button onclick="startNewChat()" style="padding:12px; border-radius:12px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); cursor:pointer; margin-bottom:15px;">Nova conversa +</button>
+        <button id="installApp">📥 Instalar Escupt IA</button>
+        <button onclick="startNewChat()" style="padding:12px; border-radius:12px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); cursor:pointer; margin-bottom:15px; font-weight: bold;">Nova conversa +</button>
         <div id="history" style="flex: 1; overflow-y: auto;"></div>
     </aside>
 
@@ -94,22 +102,22 @@
         </div>
         
         <div id="theme-menu">
-            <p style="font-size: 0.7rem; font-weight: bold; opacity: 0.5; margin-bottom: 5px;">APARÊNCIA</p>
-            <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')"><span class="dot" style="background:#fff;"></span> Roxo Escupt</button>
-            <button class="t-btn" style="background:#7d7d7d;" onclick="setTheme('claro')"><span class="dot" style="background:#eee;"></span> Modo Claro</button>
-            <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')"><span class="dot" style="background:#000;"></span> Modo Preto</button>
+            <p style="font-size: 0.65rem; font-weight: bold; opacity: 0.6; margin-bottom: 8px; letter-spacing: 1px;">APARÊNCIA</p>
+            <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')"><span class="dot" style="background:#fff;"></span> Roxo</button>
+            <button class="t-btn" style="background:#888;" onclick="setTheme('claro')"><span class="dot" style="background:#eee;"></span> Claro</button>
+            <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')"><span class="dot" style="background:#000;"></span> Preto</button>
         </div>
 
-        <div class="welcome-screen" id="welcomeScreen" style="text-align: center; margin-top: 25vh;">
-            <img src="logoroxa.png" id="mainLogo" style="width: 100px; margin-bottom: 20px;">
-            <h2>Olá, como posso ajudar?</h2>
+        <div class="welcome-screen" id="welcomeScreen">
+            <img src="logoroxa.png" id="mainLogo">
+            <h2>Como posso ajudar hoje?</h2>
         </div>
 
         <div id="chatWindow"></div>
 
         <div class="footer-area">
             <div class="input-wrapper">
-                <input type="text" class="input-box" id="userInput" placeholder="Escreva aqui..." autocomplete="off">
+                <input type="text" class="input-box" id="userInput" placeholder="Escreve uma mensagem..." autocomplete="off">
             </div>
         </div>
     </main>
@@ -121,24 +129,26 @@
         let currentChatId = null;
         let deferredPrompt;
 
-        // --- LÓGICA DE INSTALAÇÃO ---
-        const installBtn = document.getElementById('installApp');
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'block';
-        });
-
-        installBtn.addEventListener('click', () => {
-            installBtn.style.display = 'none';
-            if (deferredPrompt) deferredPrompt.prompt();
-        });
-
+        // --- SERVICE WORKER & INSTALAÇÃO ---
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js');
         }
 
-        // --- LÓGICA DE TEMAS E ÍCONES ---
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installApp').style.display = 'block';
+        });
+
+        document.getElementById('installApp').addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt = null;
+                document.getElementById('installApp').style.display = 'none';
+            }
+        });
+
+        // --- SISTEMA DE TEMAS ---
         function setTheme(t) {
             document.body.setAttribute('data-theme', t);
             localStorage.setItem('escupt_theme', t);
@@ -147,15 +157,16 @@
             const logo = document.getElementById('mainLogo');
             const configIcon = document.getElementById('configIcon');
 
+            // Troca imagens baseado no tema
             if (t === 'roxo') {
                 if(logo) logo.src = "logoroxa.png";
-                if(configIcon) configIcon.src = "Configroxa.png";
+                configIcon.src = "Configroxa.png";
             } else if (t === 'claro') {
                 if(logo) logo.src = "logobranca.png"; 
-                if(configIcon) configIcon.src = "Configbranca.png";
+                configIcon.src = "Configbranca.png";
             } else if (t === 'escuro') {
                 if(logo) logo.src = "logoescura.png";
-                if(configIcon) configIcon.src = "Configescura.png";
+                configIcon.src = "Configescura.png";
             }
         }
 
@@ -171,14 +182,18 @@
         async function sendMessage(text) {
             if (!currentChatId) {
                 currentChatId = Date.now();
-                chats.push({ id: currentChatId, title: text.substring(0, 20) + "...", messages: [] });
+                chats.push({ id: currentChatId, title: text.substring(0, 25), messages: [] });
             }
+            
             document.getElementById('welcomeScreen').style.display = "none";
             document.getElementById('chatWindow').style.display = "flex";
+            
             addMsgToUI(text, 'user-message');
             saveMsg(currentChatId, text, 'user');
 
-            const aiDiv = addMsgToUI("Pensando...", 'ai-message');
+            const aiDiv = addMsgToUI("", 'ai-message');
+            aiDiv.innerHTML = "<i>A processar...</i>";
+
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
@@ -186,16 +201,36 @@
                     body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
                 });
                 const data = await response.json();
-                aiDiv.innerHTML = marked.parse(data.response);
-                saveMsg(currentChatId, data.response, 'ai');
-            } catch (err) { aiDiv.textContent = "Erro na conexão."; }
+                typeWriteEffect(aiDiv, data.response, currentChatId);
+            } catch (err) { 
+                aiDiv.textContent = "Erro de conexão com a IA."; 
+            }
             renderHistory();
+        }
+
+        // EFEITO DE ESCRITA (TYPING)
+        function typeWriteEffect(element, fullText, chatId) {
+            let i = 0;
+            element.innerHTML = "";
+            function type() {
+                if (i < fullText.length) {
+                    const current = fullText.substring(0, i + 1);
+                    element.innerHTML = marked.parse(current);
+                    i++;
+                    const cw = document.getElementById('chatWindow');
+                    cw.scrollTop = cw.scrollHeight;
+                    setTimeout(type, 15); // Velocidade da escrita
+                } else {
+                    saveMsg(chatId, fullText, 'ai');
+                }
+            }
+            type();
         }
 
         function addMsgToUI(txt, cls) {
             const d = document.createElement('div');
             d.className = `message ${cls}`;
-            d.innerHTML = txt ? marked.parse(txt) : "";
+            if(txt) d.innerHTML = marked.parse(txt);
             const cw = document.getElementById('chatWindow');
             cw.appendChild(d);
             cw.scrollTop = cw.scrollHeight;
@@ -212,10 +247,10 @@
             hl.innerHTML = "";
             chats.slice().reverse().forEach(c => {
                 const d = document.createElement('div');
-                d.style.cssText = "padding:12px; color:white; cursor:pointer; border-radius:10px; margin-bottom:5px; font-size:0.85rem;";
+                d.style.cssText = "padding:12px; color:white; cursor:pointer; border-radius:10px; margin-bottom:5px; font-size:0.85rem; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; background: rgba(255,255,255,0.05);";
                 if(c.id === currentChatId) d.style.background = "rgba(255,255,255,0.2)";
                 d.textContent = c.title;
-                d.onclick = () => { loadChat(c.id); closeSidebar(); };
+                d.onclick = () => { loadChat(c.id); if(window.innerWidth < 769) closeSidebar(); };
                 hl.appendChild(d);
             });
         }
@@ -234,7 +269,7 @@
             document.getElementById('chatWindow').innerHTML = ""; 
             document.getElementById('chatWindow').style.display = "none"; 
             document.getElementById('welcomeScreen').style.display = "block"; 
-            closeSidebar(); renderHistory(); 
+            renderHistory(); 
         }
 
         document.getElementById('userInput').addEventListener('keypress', (e) => { 
@@ -243,7 +278,7 @@
             } 
         });
 
-        // Inicialização
+        // Inicializar Tema Salvo
         setTheme(localStorage.getItem('escupt_theme') || 'roxo');
         renderHistory();
     </script>
