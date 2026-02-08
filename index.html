@@ -26,7 +26,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; display: flex; overflow: hidden; }
 
-        /* SIDEBAR (Z-INDEX 5000) */
+        /* SIDEBAR FIXA NO TOPO */
         #sidebar { 
             width: 260px; background-color: var(--bg-sidebar); 
             display: flex; flex-direction: column; padding: 20px; 
@@ -34,10 +34,11 @@
         }
         #overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: none; z-index: 4500; }
 
+        /* BOTÕES DE INTERFACE */
         #menu-toggle { position: fixed; top: 15px; left: 15px; z-index: 2000; cursor: pointer; font-size: 1.8rem; }
         .settings-btn { position: fixed; top: 15px; right: 15px; cursor: pointer; font-size: 1.6rem; z-index: 2000; }
         
-        /* MENU DE TEMAS (RESTURADO) */
+        /* MENU DE TEMAS COM BOLINHAS (DOTS) */
         #theme-menu {
             position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
             padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 10px;
@@ -46,17 +47,18 @@
         .t-btn { 
             border: none; padding: 12px; border-radius: 10px; cursor: pointer; 
             color: white; font-weight: bold; display: flex; align-items: center; gap: 10px;
+            transition: 0.2s;
         }
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* CHAT */
+        /* CHAT E WELCOME SCREEN */
         #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
         #chatWindow { flex: 1; overflow-y: auto; padding: 80px 10% 160px; display: none; flex-direction: column; gap: 15px; }
-        .message { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; }
+        .message { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; }
         .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
 
-        /* FOOTER */
+        /* RODAPÉ E INPUT */
         .footer-area {
             position: absolute; bottom: 0; left: 0; right: 0;
             background-color: var(--bg-main); padding: 15px 10px 40px;
@@ -91,7 +93,7 @@
         <div class="settings-btn" onclick="toggleThemeMenu()">⚙️</div>
         
         <div id="theme-menu">
-            <p style="font-size: 0.7rem; font-weight: bold; opacity: 0.6; margin-bottom: 5px;">APARÊNCIA</p>
+            <p style="font-size: 0.7rem; font-weight: bold; opacity: 0.5; margin-bottom: 5px;">APARÊNCIA</p>
             <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')"><span class="dot" style="background:#fff;"></span> Roxo Escupt</button>
             <button class="t-btn" style="background:#7d7d7d;" onclick="setTheme('claro')"><span class="dot" style="background:#eee;"></span> Modo Claro</button>
             <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')"><span class="dot" style="background:#000;"></span> Modo Preto</button>
@@ -122,17 +124,17 @@
         function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.body.classList.remove('menu-open'); document.getElementById('overlay').style.display='none'; }
         function toggleThemeMenu() { const m = document.getElementById('theme-menu'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
         
-        // FUNÇÃO DE TEMAS COM TROCA DE LOGO RESTAURADA
         function setTheme(t) {
             document.body.setAttribute('data-theme', t);
             localStorage.setItem('escupt_theme', t);
             document.getElementById('theme-menu').style.display = 'none';
             
+            // Lógica que troca a imagem dependendo do tema
             const logo = document.getElementById('mainLogo');
             if(logo) {
                 if(t === 'roxo') logo.src = "logoroxa.png";
-                if(t === 'claro') logo.src = "logobranca.png";
-                if(t === 'escuro') logo.src = "logoescura.png";
+                else if(t === 'claro') logo.src = "logobranca.png";
+                else if(t === 'escuro') logo.src = "logoescura.png";
             }
         }
 
@@ -146,7 +148,7 @@
             addMsgToUI(text, 'user-message');
             saveMsg(currentChatId, text, 'user');
 
-            const aiDiv = addMsgToUI("Pensando...", 'ai-message');
+            const aiDiv = addMsgToUI("Digitando...", 'ai-message');
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
@@ -156,7 +158,7 @@
                 const data = await response.json();
                 aiDiv.innerHTML = marked.parse(data.response);
                 saveMsg(currentChatId, data.response, 'ai');
-            } catch (err) { aiDiv.textContent = "Erro de conexão."; }
+            } catch (err) { aiDiv.textContent = "Erro na conexão com Ollama."; }
             renderHistory();
         }
 
@@ -201,15 +203,23 @@
 
         document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && e.target.value.trim()) { sendMessage(e.target.value); e.target.value = ""; } });
 
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
+        // REGISTRO DE PWA
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('./sw.js').then(() => console.log("SW Ativo")); 
+        }
+        
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
+            e.preventDefault(); 
+            deferredPrompt = e;
             document.getElementById('installBtn').style.display = 'block';
         });
+
         document.getElementById('installBtn').onclick = async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') document.getElementById('installBtn').style.display = 'none';
                 deferredPrompt = null;
             }
         };
