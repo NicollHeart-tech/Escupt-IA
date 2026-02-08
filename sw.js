@@ -1,7 +1,4 @@
-self.addEventListener('install', (e) => {
-    self.skipWaiting();
-});
-
-self.addEventListener('fetch', (event) => {
-    event.respondWith(fetch(event.request));
+// Service Worker simples para permitir a instalação
+self.addEventListener('fetch', function(event) {
+    // Mantido simples para validação do Chrome
 });
