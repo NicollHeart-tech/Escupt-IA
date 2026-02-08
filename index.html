@@ -10,11 +10,13 @@
     <link rel="apple-touch-icon" href="logo.png">
 
     <script>
-      // Registra o Service Worker para habilitar o "Instalar"
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
-    </script>
+  if ('serviceWorker' in navigator) {
+    // Adicionamos o ./ e um log para você ver se deu certo no console
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Escupt IA: App pronto para instalar!'))
+      .catch(err => console.log('Erro no registro:', err));
+  }
+</script>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
