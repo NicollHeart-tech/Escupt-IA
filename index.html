@@ -6,8 +6,15 @@
     <title>Escupt IA</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2a004f">
+    <meta name="theme-color" content="#8b5cf6">
     <link rel="apple-touch-icon" href="logo.png">
+
+    <script>
+      // Registra o Service Worker para habilitar o "Instalar"
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -25,10 +32,10 @@
             --text-color: #ffffff; --msg-user: #333333; --msg-ai: #1a1a1a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; display: flex; overflow: hidden; }
 
-        /* Sidebar com Z-index Alto */
+        /* SIDEBAR (Z-INDEX 5000) */
         #sidebar { 
             width: 260px; background-color: var(--bg-sidebar); 
             display: flex; flex-direction: column; padding: 20px; 
@@ -39,30 +46,43 @@
         #menu-toggle { position: fixed; top: 15px; left: 15px; z-index: 2000; cursor: pointer; font-size: 1.8rem; }
         .settings-btn { position: fixed; top: 15px; right: 15px; cursor: pointer; font-size: 1.6rem; z-index: 2000; }
         
-        /* Menu de Temas Premium */
+        /* MENU DE TEMAS PREMIUM */
         #theme-menu {
             position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
             padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 4000; min-width: 200px;
         }
-        .t-btn { border: none; padding: 12px; border-radius: 10px; cursor: pointer; color: white; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .t-btn { 
+            border: none; padding: 12px; border-radius: 10px; cursor: pointer; 
+            color: white; font-weight: bold; display: flex; align-items: center; gap: 10px;
+            transition: 0.2s;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* Chat e Boas-vindas */
+        /* CONTEÚDO PRINCIPAL */
         #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
         #chatWindow { flex: 1; overflow-y: auto; padding: 80px 10% 160px; display: none; flex-direction: column; gap: 15px; }
-        .message { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; }
+        .message { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; }
         .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
 
-        /* Rodapé de Input */
-        .footer-area { position: absolute; bottom: 0; left: 0; right: 0; background-color: var(--bg-main); padding: 15px 10px 40px; display: flex; justify-content: center; z-index: 1000; }
-        .input-wrapper { width: 95%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; display: flex; align-items: center; padding: 5px 20px; }
+        /* FOOTER INPUT */
+        .footer-area {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background-color: var(--bg-main); padding: 15px 10px 40px;
+            display: flex; justify-content: center; z-index: 1000;
+        }
+        .input-wrapper {
+            width: 95%; max-width: 800px; background-color: var(--bg-input);
+            border-radius: 30px; display: flex; align-items: center; padding: 5px 20px;
+        }
         .input-box { flex: 1; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
 
+        body.menu-open #menu-toggle { opacity: 0; }
         @media (max-width: 768px) {
             #sidebar { position: fixed; left: -260px; height: 100%; }
             #sidebar.active { transform: translateX(260px); }
+            #chatWindow { padding: 80px 15px 150px; }
         }
     </style>
 </head>
@@ -80,9 +100,10 @@
         <div class="settings-btn" onclick="toggleThemeMenu()">⚙️</div>
         
         <div id="theme-menu">
-            <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')"><span class="dot" style="background:#fff;"></span> Roxo</button>
-            <button class="t-btn" style="background:#7d7d7d;" onclick="setTheme('claro')"><span class="dot" style="background:#eee;"></span> Claro</button>
-            <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')"><span class="dot" style="background:#000;"></span> Preto</button>
+            <p style="font-size: 0.7rem; font-weight: bold; opacity: 0.5; margin-bottom: 5px;">APARÊNCIA</p>
+            <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')"><span class="dot" style="background:#fff;"></span> Roxo Escupt</button>
+            <button class="t-btn" style="background:#7d7d7d;" onclick="setTheme('claro')"><span class="dot" style="background:#eee;"></span> Modo Claro</button>
+            <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')"><span class="dot" style="background:#000;"></span> Modo Preto</button>
         </div>
 
         <div class="welcome-screen" id="welcomeScreen" style="text-align: center; margin-top: 25vh;">
@@ -117,15 +138,15 @@
             const logo = document.getElementById('mainLogo');
             if(logo) {
                 if(t === 'roxo') logo.src = "logoroxa.png";
-                if(t === 'claro') logo.src = "logobranca.png";
-                if(t === 'escuro') logo.src = "logoescura.png";
+                else if(t === 'claro') logo.src = "logobranca.png";
+                else if(t === 'escuro') logo.src = "logoescura.png";
             }
         }
 
         async function sendMessage(text) {
             if (!currentChatId) {
                 currentChatId = Date.now();
-                chats.push({ id: currentChatId, title: text.substring(0, 20), messages: [] });
+                chats.push({ id: currentChatId, title: text.substring(0, 20) + "...", messages: [] });
             }
             document.getElementById('welcomeScreen').style.display = "none";
             document.getElementById('chatWindow').style.display = "flex";
@@ -142,7 +163,7 @@
                 const data = await response.json();
                 aiDiv.innerHTML = marked.parse(data.response);
                 saveMsg(currentChatId, data.response, 'ai');
-            } catch (err) { aiDiv.textContent = "Erro de conexão."; }
+            } catch (err) { aiDiv.textContent = "Erro na conexão."; }
             renderHistory();
         }
 
@@ -186,11 +207,6 @@
         function startNewChat() { currentChatId = null; document.getElementById('chatWindow').innerHTML = ""; document.getElementById('chatWindow').style.display = "none"; document.getElementById('welcomeScreen').style.display = "block"; closeSidebar(); renderHistory(); }
 
         document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && e.target.value.trim()) { sendMessage(e.target.value); e.target.value = ""; } });
-
-        // REGISTRO SIMPLES DO SERVICE WORKER (VERSÃO QUE FUNCIONOU)
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
 
         setTheme(localStorage.getItem('escupt_theme') || 'roxo');
         renderHistory();
