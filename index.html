@@ -26,7 +26,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; display: flex; overflow: hidden; }
 
-        /* SIDEBAR (Z-INDEX 5000) */
+        /* SIDEBAR (Z-INDEX 5000: TOPO) */
         #sidebar { 
             width: 260px; background-color: var(--bg-sidebar); 
             display: flex; flex-direction: column; padding: 20px; 
@@ -34,11 +34,11 @@
         }
         #overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: none; z-index: 4500; }
 
-        /* BOTÕES UI */
+        /* UI BUTTONS */
         #menu-toggle { position: fixed; top: 15px; left: 15px; z-index: 2000; cursor: pointer; font-size: 1.8rem; }
         .settings-btn { position: fixed; top: 15px; right: 15px; cursor: pointer; font-size: 1.6rem; z-index: 2000; }
         
-        /* MENU DE TEMAS ESTILIZADO */
+        /* THEME MENU (VISUAL PREMIUM RESTAURADO) */
         #theme-menu {
             position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
             padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 10px;
@@ -49,16 +49,17 @@
             color: white; font-weight: bold; display: flex; align-items: center; gap: 10px;
             transition: 0.2s;
         }
-        .dot { width: 12px; height: 12px; border-radius: 50%; background: white; }
+        .t-btn:hover { filter: brightness(1.2); transform: scale(1.02); }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
 
-        /* CHAT */
+        /* CHAT WINDOW */
         #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
         #chatWindow { flex: 1; overflow-y: auto; padding: 80px 10% 160px; display: none; flex-direction: column; gap: 15px; }
-        .message { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; }
+        .message { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; }
         .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
 
-        /* RODAPÉ */
+        /* FOOTER */
         .footer-area {
             position: absolute; bottom: 0; left: 0; right: 0;
             background-color: var(--bg-main); padding: 15px 10px 40px;
@@ -70,13 +71,16 @@
         }
         .input-box { flex: 1; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
 
-        body.menu-open #menu-toggle { opacity: 0; }
+        body.menu-open #menu-toggle { opacity: 0; pointer-events: none; }
         body.menu-open #overlay { display: block; }
         @media (max-width: 768px) {
             #sidebar { position: fixed; left: -260px; height: 100%; }
             #sidebar.active { transform: translateX(260px); }
             #chatWindow { padding: 80px 15px 150px; }
         }
+
+        .typing::after { content: '▌'; animation: blink 0.8s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
     </style>
 </head>
 <body data-theme="roxo">
@@ -85,7 +89,7 @@
     <div id="overlay" onclick="closeSidebar()"></div>
 
     <aside id="sidebar">
-        <button onclick="startNewChat()" style="padding:12px; border-radius:12px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); cursor:pointer; margin-bottom:15px;">Nova conversa +</button>
+        <button onclick="startNewChat()" style="padding:12px; border-radius:12px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); cursor:pointer; margin-bottom:15px; font-style:italic;">Nova conversa +</button>
         <button id="installBtn" style="display:none; padding:12px; border-radius:12px; background:#22c55e; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom:15px;">📲 Instalar App</button>
         <div id="history" style="flex: 1; overflow-y: auto;"></div>
     </aside>
@@ -94,15 +98,15 @@
         <div class="settings-btn" onclick="toggleThemeMenu()">⚙️</div>
         
         <div id="theme-menu">
-            <p style="font-size: 0.7rem; font-weight: bold; opacity: 0.5; margin-bottom: 5px;">APARÊNCIA</p>
-            <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')"><span class="dot"></span> Roxo Escupt</button>
-            <button class="t-btn" style="background:#7d7d7d;" onclick="setTheme('claro')"><span class="dot" style="background:#eee;"></span> Modo Claro</button>
-            <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')"><span class="dot" style="background:#000;"></span> Modo Preto</button>
+            <p style="font-size: 0.7rem; font-weight: bold; opacity: 0.6; margin-bottom: 5px;">APARÊNCIA</p>
+            <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')"><span class="dot" style="background:#ffffff;"></span> Roxo Escupt</button>
+            <button class="t-btn" style="background:#7d7d7d;" onclick="setTheme('claro')"><span class="dot" style="background:#eeeeee;"></span> Modo Claro</button>
+            <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')"><span class="dot" style="background:#000000;"></span> Modo Preto</button>
         </div>
 
         <div class="welcome-screen" id="welcomeScreen" style="text-align: center; margin-top: 25vh;">
             <img src="logo.png" id="mainLogo" style="width: 100px; margin-bottom: 20px;">
-            <h2>Como posso ajudar?</h2>
+            <h2>Olá, como posso ajudar?</h2>
         </div>
 
         <div id="chatWindow"></div>
@@ -129,21 +133,24 @@
             document.body.setAttribute('data-theme', t);
             localStorage.setItem('escupt_theme', t);
             document.getElementById('theme-menu').style.display = 'none';
+            // A logo principal SEMPRE será logo.png independente do tema
             const logo = document.getElementById('mainLogo');
-            if(logo) logo.src = "logo.png"; // Usando a mesma logo para todos conforme solicitado
+            if(logo) logo.src = "logo.png";
         }
 
         async function sendMessage(text) {
             if (!currentChatId) {
                 currentChatId = Date.now();
-                chats.push({ id: currentChatId, title: text.substring(0, 20), messages: [] });
+                chats.push({ id: currentChatId, title: text.substring(0, 20) + "...", messages: [] });
             }
             document.getElementById('welcomeScreen').style.display = "none";
             document.getElementById('chatWindow').style.display = "flex";
             addMsgToUI(text, 'user-message');
             saveMsg(currentChatId, text, 'user');
 
-            const aiDiv = addMsgToUI("Pensando...", 'ai-message');
+            const aiDiv = addMsgToUI("", 'ai-message');
+            aiDiv.classList.add('typing');
+
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
@@ -151,10 +158,25 @@
                     body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
                 });
                 const data = await response.json();
-                aiDiv.innerHTML = marked.parse(data.response);
+                aiDiv.classList.remove('typing');
+                await typewriter(aiDiv, data.response);
                 saveMsg(currentChatId, data.response, 'ai');
-            } catch (err) { aiDiv.textContent = "Erro ao conectar."; }
+            } catch (err) {
+                aiDiv.classList.remove('typing');
+                aiDiv.textContent = "Erro na conexão.";
+            }
             renderHistory();
+        }
+
+        async function typewriter(el, text) {
+            let cur = "";
+            for (let word of text.split(" ")) {
+                cur += word + " ";
+                el.innerHTML = marked.parse(cur);
+                const cw = document.getElementById('chatWindow');
+                cw.scrollTop = cw.scrollHeight;
+                await new Promise(r => setTimeout(r, 40));
+            }
         }
 
         function addMsgToUI(txt, cls) {
@@ -198,7 +220,7 @@
 
         document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && e.target.value.trim()) { sendMessage(e.target.value); e.target.value = ""; } });
 
-        // SERVICE WORKER & PWA
+        // PWA E SERVICE WORKER
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
