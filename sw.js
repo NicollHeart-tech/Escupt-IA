@@ -1,12 +1,9 @@
 self.addEventListener('install', (e) => {
-    self.skipWaiting();
+  console.log('SW instalado');
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
-    // O Chrome exige que o evento fetch seja ouvido para validar o PWA
-    event.respondWith(
-        fetch(event.request).catch(() => {
-            return new Response("Offline");
-        })
-    );
+  // Isso é o que o Chrome precisa para ativar o botão de instalar
+  event.respondWith(fetch(event.request));
 });
