@@ -7,70 +7,226 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2a004f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="logo192.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         :root {
-            --bg-main: #2a004f; --bg-sidebar: #4b0082; --bg-input: #3d0070;
-            --text-color: #ffffff; --msg-user: #6d28d9; --msg-ai: rgba(255, 255, 255, 0.1);
+            --bg-main: #2a004f; 
+            --bg-sidebar: #4b0082; 
+            --bg-input: #3d0070;
+            --text-color: #ffffff; 
+            --msg-user: #6d28d9; 
+            --msg-ai: rgba(255, 255, 255, 0.1);
         }
         [data-theme="claro"] {
-            --bg-main: #ffffff; --bg-sidebar: #b3b3b3; --bg-input: #e0e0e0;
-            --text-color: #000000; --msg-user: #808080; --msg-ai: #f0f0f0;
+            --bg-main: #ffffff; 
+            --bg-sidebar: #b3b3b3; 
+            --bg-input: #e0e0e0;
+            --text-color: #000000; 
+            --msg-user: #808080; 
+            --msg-ai: #f0f0f0;
         }
         [data-theme="escuro"] {
-            --bg-main: #000000; --bg-sidebar: #1a1a1a; --bg-input: #262626;
-            --text-color: #ffffff; --msg-user: #333333; --msg-ai: #1a1a1a;
+            --bg-main: #000000; 
+            --bg-sidebar: #1a1a1a; 
+            --bg-input: #262626;
+            --text-color: #ffffff; 
+            --msg-user: #333333; 
+            --msg-ai: #1a1a1a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; display: flex; overflow: hidden; }
-
-        /* SIDEBAR FIXA NO TOPO */
-        #sidebar { 
-            width: 260px; background-color: var(--bg-sidebar); 
-            display: flex; flex-direction: column; padding: 20px; 
-            z-index: 5000; transition: transform 0.3s ease;
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
         }
-        #overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: none; z-index: 4500; }
-
-        /* BOTÕES DE INTERFACE */
-        #menu-toggle { position: fixed; top: 15px; left: 15px; z-index: 2000; cursor: pointer; font-size: 1.8rem; }
-        .settings-btn { position: fixed; top: 15px; right: 15px; cursor: pointer; font-size: 1.6rem; z-index: 2000; }
         
-        /* MENU DE TEMAS COM BOLINHAS (DOTS) */
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-color); 
+            height: 100vh; 
+            display: flex; 
+            overflow: hidden; 
+        }
+
+        #sidebar { 
+            width: 260px; 
+            background-color: var(--bg-sidebar); 
+            display: flex; 
+            flex-direction: column; 
+            padding: 20px; 
+            z-index: 5000; 
+            transition: transform 0.3s ease;
+        }
+        
+        #overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            background: rgba(0,0,0,0.5); 
+            display: none; 
+            z-index: 4500; 
+        }
+
+        #menu-toggle { 
+            position: fixed; 
+            top: 15px; 
+            left: 15px; 
+            z-index: 2000; 
+            cursor: pointer; 
+            font-size: 1.8rem; 
+        }
+        
+        .settings-btn { 
+            position: fixed; 
+            top: 15px; 
+            right: 15px; 
+            cursor: pointer; 
+            font-size: 1.6rem; 
+            z-index: 2000; 
+        }
+        
         #theme-menu {
-            position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
-            padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 4000; min-width: 200px;
+            position: fixed; 
+            top: 65px; 
+            right: 15px; 
+            background: var(--bg-input); 
+            padding: 15px; 
+            border-radius: 15px; 
+            display: none; 
+            flex-direction: column; 
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            z-index: 4000; 
+            min-width: 200px;
         }
+        
         .t-btn { 
-            border: none; padding: 12px; border-radius: 10px; cursor: pointer; 
-            color: white; font-weight: bold; display: flex; align-items: center; gap: 10px;
-            transition: 0.2s;
+            border: none; 
+            padding: 12px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            color: white; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
         }
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
+        
+        .dot { 
+            width: 12px; 
+            height: 12px; 
+            border-radius: 50%; 
+            display: inline-block; 
+        }
 
-        /* CHAT E WELCOME SCREEN */
-        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
-        #chatWindow { flex: 1; overflow-y: auto; padding: 80px 10% 160px; display: none; flex-direction: column; gap: 15px; }
-        .message { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; }
-        .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
-        .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
+        #main-content { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            width: 100%; 
+        }
+        
+        #chatWindow { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 80px 10% 160px; 
+            display: none; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        
+        .message { 
+            max-width: 80%; 
+            padding: 12px 18px; 
+            border-radius: 20px; 
+            font-size: 0.95rem; 
+            line-height: 1.5; 
+        }
+        
+        .user-message { 
+            align-self: flex-end; 
+            background-color: var(--msg-user); 
+            color: white; 
+            border-bottom-right-radius: 4px; 
+        }
+        
+        .ai-message { 
+            align-self: flex-start; 
+            background-color: var(--msg-ai); 
+            color: var(--text-color); 
+            border-bottom-left-radius: 4px; 
+        }
 
-        /* RODAPÉ E INPUT */
         .footer-area {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background-color: var(--bg-main); padding: 15px 10px 40px;
-            display: flex; justify-content: center; z-index: 1000;
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+            background-color: var(--bg-main); 
+            padding: 15px 10px 40px;
+            display: flex; 
+            justify-content: center; 
+            z-index: 1000;
         }
+        
         .input-wrapper {
-            width: 95%; max-width: 800px; background-color: var(--bg-input);
-            border-radius: 30px; display: flex; align-items: center; padding: 5px 20px;
+            width: 95%; 
+            max-width: 800px; 
+            background-color: var(--bg-input);
+            border-radius: 30px; 
+            display: flex; 
+            align-items: center; 
+            padding: 5px 20px;
         }
-        .input-box { flex: 1; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
+        
+        .input-box { 
+            flex: 1; 
+            padding: 12px 0; 
+            background: transparent; 
+            border: none; 
+            color: var(--text-color); 
+            outline: none; 
+            font-size: 16px; 
+        }
+
+        .install-banner {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            gap: 15px;
+            z-index: 9999;
+        }
+
+        .install-btn {
+            background: white;
+            color: #6d28d9;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
         body.menu-open #menu-toggle { opacity: 0; }
+        
         @media (max-width: 768px) {
             #sidebar { position: fixed; left: -260px; height: 100%; }
             #sidebar.active { transform: translateX(260px); }
@@ -80,12 +236,20 @@
 </head>
 <body data-theme="roxo">
 
+    <div class="install-banner" id="installBanner">
+        <div>
+            <div style="font-weight: bold; margin-bottom: 5px;">📲 Instalar Escupt IA</div>
+            <div style="font-size: 0.85rem; opacity: 0.9;">Use como app!</div>
+        </div>
+        <button class="install-btn" id="installBtn">Instalar</button>
+        <button onclick="document.getElementById('installBanner').style.display='none'" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>
+    </div>
+
     <div id="menu-toggle" onclick="openSidebar()">☰</div>
     <div id="overlay" onclick="closeSidebar()"></div>
 
     <aside id="sidebar">
         <button onclick="startNewChat()" style="padding:12px; border-radius:12px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); cursor:pointer; margin-bottom:15px;">Nova conversa +</button>
-        <button id="installBtn" style="display:none; padding:12px; border-radius:12px; background:#22c55e; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom:15px;">📲 Instalar App</button>
         <div id="history" style="flex: 1; overflow-y: auto;"></div>
     </aside>
 
@@ -93,14 +257,14 @@
         <div class="settings-btn" onclick="toggleThemeMenu()">⚙️</div>
         
         <div id="theme-menu">
-            <p style="font-size: 0.7rem; font-weight: bold; opacity: 0.5; margin-bottom: 5px;">APARÊNCIA</p>
+            <p style="font-size: 0.7rem; font-weight: bold; opacity: 0.6; margin-bottom: 5px;">APARÊNCIA</p>
             <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')"><span class="dot" style="background:#fff;"></span> Roxo Escupt</button>
             <button class="t-btn" style="background:#7d7d7d;" onclick="setTheme('claro')"><span class="dot" style="background:#eee;"></span> Modo Claro</button>
             <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')"><span class="dot" style="background:#000;"></span> Modo Preto</button>
         </div>
 
         <div class="welcome-screen" id="welcomeScreen" style="text-align: center; margin-top: 25vh;">
-            <img src="logoroxa.png" id="mainLogo" style="width: 100px; margin-bottom: 20px;">
+            <img src="logoroxa.png" id="mainLogo" style="width: 100px; margin-bottom: 20px;" onerror="this.style.display='none'">
             <h2>Olá, como posso ajudar?</h2>
         </div>
 
@@ -117,19 +281,31 @@
         const NGROK_URL = "https://chorographically-nonallegiance-rubye.ngrok-free.dev";
         const MODEL_NAME = "EscuptIA_Oficial";
 
-        let chats = JSON.parse(localStorage.getItem('escupt_chats')) || [];
+        let chats = JSON.parse(localStorage.getItem('escupt_chats') || '[]');
         let currentChatId = null;
 
-        function openSidebar() { document.getElementById('sidebar').classList.add('active'); document.body.classList.add('menu-open'); document.getElementById('overlay').style.display='block'; }
-        function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.body.classList.remove('menu-open'); document.getElementById('overlay').style.display='none'; }
-        function toggleThemeMenu() { const m = document.getElementById('theme-menu'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
+        function openSidebar() { 
+            document.getElementById('sidebar').classList.add('active'); 
+            document.body.classList.add('menu-open'); 
+            document.getElementById('overlay').style.display='block'; 
+        }
+        
+        function closeSidebar() { 
+            document.getElementById('sidebar').classList.remove('active'); 
+            document.body.classList.remove('menu-open'); 
+            document.getElementById('overlay').style.display='none'; 
+        }
+        
+        function toggleThemeMenu() { 
+            const m = document.getElementById('theme-menu'); 
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; 
+        }
         
         function setTheme(t) {
             document.body.setAttribute('data-theme', t);
             localStorage.setItem('escupt_theme', t);
             document.getElementById('theme-menu').style.display = 'none';
             
-            // Lógica que troca a imagem dependendo do tema
             const logo = document.getElementById('mainLogo');
             if(logo) {
                 if(t === 'roxo') logo.src = "logoroxa.png";
@@ -143,43 +319,62 @@
                 currentChatId = Date.now();
                 chats.push({ id: currentChatId, title: text.substring(0, 20), messages: [] });
             }
+            
             document.getElementById('welcomeScreen').style.display = "none";
             document.getElementById('chatWindow').style.display = "flex";
+            
             addMsgToUI(text, 'user-message');
             saveMsg(currentChatId, text, 'user');
 
-            const aiDiv = addMsgToUI("Digitando...", 'ai-message');
+            const aiDiv = addMsgToUI("Pensando...", 'ai-message');
+            
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
                 });
+                
                 const data = await response.json();
-                aiDiv.innerHTML = marked.parse(data.response);
+                
+                if (typeof marked !== 'undefined' && marked.parse) {
+                    aiDiv.innerHTML = marked.parse(data.response);
+                } else {
+                    aiDiv.textContent = data.response;
+                }
+                
                 saveMsg(currentChatId, data.response, 'ai');
-            } catch (err) { aiDiv.textContent = "Erro na conexão com Ollama."; }
+            } catch (err) { 
+                aiDiv.textContent = "Erro de conexão: " + err.message; 
+            }
+            
             renderHistory();
         }
 
         function addMsgToUI(txt, cls) {
             const d = document.createElement('div');
-            d.className = `message ${cls}`;
-            d.innerHTML = txt ? marked.parse(txt) : "";
+            d.className = 'message ' + cls;
+            d.textContent = txt || "";
+            
             const cw = document.getElementById('chatWindow');
             cw.appendChild(d);
             cw.scrollTop = cw.scrollHeight;
+            
             return d;
         }
 
         function saveMsg(id, text, role) {
             const c = chats.find(x => x.id === id);
-            if(c) { c.messages.push({ text, role }); localStorage.setItem('escupt_chats', JSON.stringify(chats)); }
+            if(c) { 
+                c.messages.push({ text, role }); 
+                localStorage.setItem('escupt_chats', JSON.stringify(chats)); 
+            }
         }
 
         function renderHistory() {
             const hl = document.getElementById('history');
             hl.innerHTML = "";
+            
             chats.slice().reverse().forEach(c => {
                 const d = document.createElement('div');
                 d.style.cssText = "padding:12px; color:white; cursor:pointer; border-radius:10px; margin-bottom:5px; font-size:0.85rem;";
@@ -191,39 +386,57 @@
         }
 
         function loadChat(id) {
-            currentChatId = id; const c = chats.find(x => x.id === id);
+            currentChatId = id; 
+            const c = chats.find(x => x.id === id);
+            if (!c) return;
+            
             document.getElementById('welcomeScreen').style.display = "none";
             const cw = document.getElementById('chatWindow');
-            cw.style.display = "flex"; cw.innerHTML = "";
+            cw.style.display = "flex"; 
+            cw.innerHTML = "";
+            
             c.messages.forEach(m => addMsgToUI(m.text, m.role === 'user' ? 'user-message' : 'ai-message'));
             renderHistory();
         }
 
-        function startNewChat() { currentChatId = null; document.getElementById('chatWindow').innerHTML = ""; document.getElementById('chatWindow').style.display = "none"; document.getElementById('welcomeScreen').style.display = "block"; closeSidebar(); renderHistory(); }
-
-        document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && e.target.value.trim()) { sendMessage(e.target.value); e.target.value = ""; } });
-
-        // REGISTRO DE PWA
-        if ('serviceWorker' in navigator) { 
-            navigator.serviceWorker.register('./sw.js').then(() => console.log("SW Ativo")); 
+        function startNewChat() { 
+            currentChatId = null; 
+            document.getElementById('chatWindow').innerHTML = ""; 
+            document.getElementById('chatWindow').style.display = "none"; 
+            document.getElementById('welcomeScreen').style.display = "block"; 
+            closeSidebar(); 
+            renderHistory(); 
         }
-        
+
+        document.getElementById('userInput').addEventListener('keypress', (e) => { 
+            if(e.key === 'Enter' && e.target.value.trim()) { 
+                sendMessage(e.target.value); 
+                e.target.value = ""; 
+            } 
+        });
+
+        // PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW erro:', err));
+        }
+
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); 
+            e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('installBtn').style.display = 'block';
+            document.getElementById('installBanner').style.display = 'flex';
         });
 
         document.getElementById('installBtn').onclick = async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') document.getElementById('installBtn').style.display = 'none';
+                document.getElementById('installBanner').style.display = 'none';
                 deferredPrompt = null;
             }
         };
 
+        // Inicializar
         setTheme(localStorage.getItem('escupt_theme') || 'roxo');
         renderHistory();
     </script>
