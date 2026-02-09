@@ -49,13 +49,7 @@
 
         /* BOTÕES TOPO */
         .menu-toggle { position: fixed; top: 15px; left: 15px; font-size: 24px; cursor: pointer; z-index: 8000; }
-        
-        /* O ÍCONE DE CONFIGURAÇÕES */
-        .settings-btn { 
-            position: fixed; top: 15px; right: 15px; 
-            width: 38px; height: 38px; cursor: pointer; z-index: 8000; 
-            display: flex; align-items: center; justify-content: center;
-        }
+        .settings-btn { position: fixed; top: 15px; right: 15px; width: 38px; height: 38px; cursor: pointer; z-index: 8000; display: flex; align-items: center; justify-content: center; }
         .settings-btn img { width: 100%; height: 100%; object-fit: contain; }
         
         /* MENU DE TEMAS */
@@ -105,13 +99,13 @@
                 <img id="userPhoto" src="" style="width:35px; border-radius:50%; display:none">
                 <span id="userName" style="font-weight: bold; font-size: 0.85rem;">Usuário</span>
             </div>
-            <button onclick="location.reload()" style="padding:12px; background:rgba(255,255,255,0.1); border:none; color:white; border-radius:10px; cursor:pointer; font-weight:bold">Nova Conversa +</button>
+            <button onclick="clearChat()" style="padding:12px; background:rgba(255,255,255,0.1); border:none; color:white; border-radius:10px; cursor:pointer; font-weight:bold">Nova Conversa +</button>
             <button id="btn-logout" style="margin-top: auto; padding: 12px; background: none; border: 1px solid #ff4444; color: #ff4444; border-radius: 10px; cursor: pointer;">Sair da Conta</button>
         </aside>
 
         <main id="main-content" style="flex:1; display:flex; flex-direction:column;">
             <div class="settings-btn" onclick="toggleThemeMenu()">
-                <img src="Configroxa.png" id="configIcon" alt="Configurações">
+                <img src="Configroxa.png" id="configIcon">
             </div>
 
             <div id="theme-menu">
@@ -154,7 +148,7 @@
         const provider = new GoogleAuthProvider();
 
         window.loginComGoogle = () => signInWithRedirect(auth, provider);
-        window.logout = () => signOut(auth).then(() => location.reload());
+        window.logout = () => signOut(auth).then(() => { localStorage.removeItem('escupt_chat'); location.reload(); });
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -164,6 +158,7 @@
                 document.getElementById('userPhoto').src = user.photoURL;
                 document.getElementById('userPhoto').style.display = "block";
                 document.getElementById('welcomeText').textContent = `Olá, ${user.displayName.split(' ')[0]}!`;
+                loadSavedChat(); // Carrega as mensagens salvas ao entrar
             }
         });
 
@@ -172,7 +167,10 @@
     </script>
 
     <script>
-        // LÓGICA DE INTERFACE
+        const NGROK_URL = "https://chorographically-nonallegiance-rubye.ngrok-free.dev";
+        const MODEL_NAME = "EscuptIA_Oficial";
+        let chatHistory = JSON.parse(localStorage.getItem('escupt_chat')) || [];
+
         function toggleSidebar() {
             const side = document.getElementById('sidebar');
             const over = document.getElementById('overlay');
@@ -190,29 +188,39 @@
             const mainLogo = document.getElementById('mainLogo');
             const loginLogo = document.getElementById('loginLogo');
             const icon = document.getElementById('configIcon');
-            
-            if(t === 'roxo') {
-                mainLogo.src = loginLogo.src = "logoroxa.png";
-                icon.src = "Configroxa.png";
-            } else if(t === 'claro') {
-                mainLogo.src = loginLogo.src = "logobranca.png";
-                icon.src = "Configbranca.png";
-            } else {
-                mainLogo.src = loginLogo.src = "logoescura.png";
-                icon.src = "Configescura.png";
-            }
+            if(t === 'roxo') { mainLogo.src = loginLogo.src = "logoroxa.png"; icon.src = "Configroxa.png"; }
+            else if(t === 'claro') { mainLogo.src = loginLogo.src = "logobranca.png"; icon.src = "Configbranca.png"; }
+            else { mainLogo.src = loginLogo.src = "logoescura.png"; icon.src = "Configescura.png"; }
             document.getElementById('theme-menu').style.display = "none";
         };
 
-        // CHAT
-        const NGROK_URL = "https://chorographically-nonallegiance-rubye.ngrok-free.dev";
-        const MODEL_NAME = "EscuptIA_Oficial";
+        // SALVAR E CARREGAR MENSAGENS
+        function saveMessage(role, text) {
+            chatHistory.push({ role, text });
+            localStorage.setItem('escupt_chat', JSON.stringify(chatHistory));
+        }
+
+        function loadSavedChat() {
+            if (chatHistory.length > 0) {
+                document.getElementById('welcome').style.display = "none";
+                chatHistory.forEach(msg => {
+                    const cls = msg.role === 'user' ? 'user-message' : 'ai-message';
+                    addMsgToUI(msg.text, cls, false); // false para não salvar de novo ao carregar
+                });
+            }
+        }
+
+        function clearChat() {
+            localStorage.removeItem('escupt_chat');
+            location.reload();
+        }
 
         async function sendMessage(text) {
             if(!text.trim()) return;
             document.getElementById('welcome').style.display = "none";
-            addMsgToUI(text, 'user-message');
-            const aiDiv = addMsgToUI("<i>Escupt está pensando...</i>", 'ai-message');
+            addMsgToUI(text, 'user-message', true);
+            
+            const aiDiv = addMsgToUI("<i>Digitando...</i>", 'ai-message', false);
 
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
@@ -221,30 +229,32 @@
                     body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
                 });
                 const data = await response.json();
+                aiDiv.innerHTML = "";
                 typeWrite(aiDiv, data.response);
+                saveMessage('ai', data.response); // Salva a resposta da IA
             } catch (err) { aiDiv.textContent = "Erro de conexão."; }
         }
 
         function typeWrite(element, text) {
-            let i = 0; element.innerHTML = "";
+            let i = 0;
             function t() {
                 if (i < text.length) {
                     element.innerHTML = marked.parse(text.substring(0, i + 1));
                     i++;
                     document.getElementById('chatWindow').scrollTop = 99999;
-                    setTimeout(t, 10);
+                    setTimeout(t, 5);
                 }
             }
             t();
         }
 
-        function addMsgToUI(text, cls) {
+        function addMsgToUI(text, cls, shouldSave) {
             const d = document.createElement('div');
             d.className = `message ${cls}`;
             d.innerHTML = marked.parse(text);
-            const cw = document.getElementById('chatWindow');
-            cw.appendChild(d);
-            cw.scrollTop = cw.scrollHeight;
+            document.getElementById('chatWindow').appendChild(d);
+            document.getElementById('chatWindow').scrollTop = 99999;
+            if(shouldSave) saveMessage(cls === 'user-message' ? 'user' : 'ai', text);
             return d;
         }
 
@@ -254,4 +264,3 @@
     </script>
 </body>
 </html>
-
