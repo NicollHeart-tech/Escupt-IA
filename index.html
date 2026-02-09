@@ -47,20 +47,24 @@
         #sidebar.active { left: 0; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
 
-        /* CONTEÚDO PRINCIPAL */
-        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
-
         /* BOTÕES TOPO */
         .menu-toggle { position: fixed; top: 15px; left: 15px; font-size: 24px; cursor: pointer; z-index: 8000; }
-        .settings-btn { position: fixed; top: 15px; right: 15px; width: 35px; cursor: pointer; z-index: 8000; }
         
-        /* MENU DE CONFIGURAÇÕES (TEMAS) */
-        #theme-menu { 
-            position: fixed; top: 60px; right: 15px; background: var(--bg-input); 
-            padding: 10px; border-radius: 15px; display: none; flex-direction: column; gap: 8px; z-index: 9500;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+        /* O ÍCONE DE CONFIGURAÇÕES */
+        .settings-btn { 
+            position: fixed; top: 15px; right: 15px; 
+            width: 38px; height: 38px; cursor: pointer; z-index: 8000; 
+            display: flex; align-items: center; justify-content: center;
         }
-        .t-btn { border: none; padding: 10px; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; text-align: left; }
+        .settings-btn img { width: 100%; height: 100%; object-fit: contain; }
+        
+        /* MENU DE TEMAS */
+        #theme-menu { 
+            position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
+            padding: 10px; border-radius: 15px; display: none; flex-direction: column; gap: 8px; z-index: 9500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .t-btn { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; text-align: left; font-size: 0.9rem; }
 
         /* CHAT */
         #chatWindow { flex: 1; overflow-y: auto; padding: 80px 15px 150px; display: flex; flex-direction: column; gap: 15px; }
@@ -70,7 +74,7 @@
 
         .footer-area { position: absolute; bottom: 0; width: 100%; padding: 15px; background: var(--bg-main); display: flex; justify-content: center; }
         .input-wrapper { width: 100%; max-width: 800px; background: var(--bg-input); border-radius: 30px; padding: 5px 15px; display: flex; align-items: center; }
-        .input-box { flex: 1; padding: 12px; background: transparent; border: none; color: white; outline: none; font-size: 16px; }
+        .input-box { flex: 1; padding: 12px; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
 
         @media (min-width: 1024px) {
             #sidebar { position: relative; left: 0; }
@@ -105,9 +109,9 @@
             <button id="btn-logout" style="margin-top: auto; padding: 12px; background: none; border: 1px solid #ff4444; color: #ff4444; border-radius: 10px; cursor: pointer;">Sair da Conta</button>
         </aside>
 
-        <main id="main-content">
+        <main id="main-content" style="flex:1; display:flex; flex-direction:column;">
             <div class="settings-btn" onclick="toggleThemeMenu()">
-                <img src="Configroxa.png" id="configIcon">
+                <img src="Configroxa.png" id="configIcon" alt="Configurações">
             </div>
 
             <div id="theme-menu">
@@ -168,7 +172,7 @@
     </script>
 
     <script>
-        // FUNÇÕES DE INTERFACE
+        // LÓGICA DE INTERFACE
         function toggleSidebar() {
             const side = document.getElementById('sidebar');
             const over = document.getElementById('overlay');
@@ -178,12 +182,7 @@
 
         function toggleThemeMenu() {
             const m = document.getElementById('theme-menu');
-            // Se estiver escondido, mostra. Se estiver visível, esconde.
-            if (m.style.display === 'flex') {
-                m.style.display = 'none';
-            } else {
-                m.style.display = 'flex';
-            }
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
         }
 
         window.setTheme = (t) => {
@@ -205,7 +204,7 @@
             document.getElementById('theme-menu').style.display = "none";
         };
 
-        // LÓGICA DO CHAT (Mantenha seu Ngrok ligado!)
+        // CHAT
         const NGROK_URL = "https://chorographically-nonallegiance-rubye.ngrok-free.dev";
         const MODEL_NAME = "EscuptIA_Oficial";
 
