@@ -9,32 +9,24 @@
         :root { --bg-main: #2a004f; --bg-sidebar: #4b0082; --bg-input: #3d0070; --text-color: #ffffff; --msg-user: #6d28d9; --msg-ai: rgba(255, 255, 255, 0.1); }
         [data-theme="claro"] { --bg-main: #ffffff; --bg-sidebar: #b3b3b3; --bg-input: #e0e0e0; --text-color: #000000; --msg-user: #808080; --msg-ai: #f0f0f0; }
         [data-theme="escuro"] { --bg-main: #000000; --bg-sidebar: #1a1a1a; --bg-input: #262626; --text-color: #ffffff; --msg-user: #333333; --msg-ai: #1a1a1a; }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; overflow: hidden; display: flex; }
-        
         #login-screen { position: fixed; inset: 0; background: var(--bg-main); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
         .login-card { background: var(--bg-input); padding: 40px; border-radius: 25px; text-align: center; width: 90%; max-width: 350px; }
         .google-btn { background: white; color: #444; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; margin-top: 20px; }
-        
         #app-container { display: none; width: 100%; height: 100%; position: relative; }
-        
         #sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; padding: 20px; position: fixed; left: -260px; height: 100%; transition: 0.3s; z-index: 9000; }
         #sidebar.active { left: 0; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
-        
         .menu-toggle { position: fixed; top: 15px; left: 15px; font-size: 24px; cursor: pointer; z-index: 8000; color: var(--text-color); }
-        .settings-btn { position: fixed; top: 10px; right: 10px; width: 44px; height: 44px; cursor: pointer; z-index: 8000; display: flex; align-items: center; justify-content: center; }
-        .settings-btn img { width: 24px; height: 24px; object-fit: contain; }
-        
+        .settings-btn { position: fixed; top: 10px; right: 10px; width: 44px; height: 44px; z-index: 8000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .settings-btn img { width: 24px; height: 24px; }
         #theme-menu { position: fixed; top: 60px; right: 15px; background: var(--bg-input); padding: 10px; border-radius: 15px; display: none; flex-direction: column; gap: 8px; z-index: 9500; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-        .t-btn { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; text-align: left; }
-        
+        .t-btn { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; }
         #chatWindow { flex: 1; overflow-y: auto; padding: 80px 15px 150px; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 0.95rem; word-wrap: break-word; }
         .user-message { align-self: flex-end; background: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background: var(--msg-ai); border-bottom-left-radius: 4px; }
-        
         .footer-area { position: absolute; bottom: 0; width: 100%; padding: 15px; background: var(--bg-main); display: flex; justify-content: center; }
         .input-wrapper { width: 100%; max-width: 800px; background: var(--bg-input); border-radius: 30px; padding: 5px 15px; display: flex; align-items: center; }
         .input-box { flex: 1; padding: 12px; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
@@ -46,47 +38,40 @@
         <div class="login-card">
             <img src="logoroxa.png" width="80" id="loginLogo">
             <h2 style="margin-top:15px">Escupt IA</h2>
-            <button class="google-btn" id="btn-login-google">
-                <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" width="20">
-                Entrar com Google
-            </button>
+            <button class="google-btn" id="btn-login-google">Entrar com Google</button>
         </div>
     </div>
 
     <div id="app-container">
         <div id="overlay" onclick="toggleSidebar()"></div>
         <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
-
         <aside id="sidebar">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
-                <img id="userPhoto" src="" style="width:35px; border-radius:50%; display:none">
-                <span id="userName" style="font-weight: bold; font-size: 0.85rem;">Usuário</span>
+                <img id="userPhoto" style="width:35px; border-radius:50%; display:none">
+                <span id="userName">Usuário</span>
             </div>
-            <button onclick="clearChat()" style="padding:12px; background:rgba(255,255,255,0.1); border:none; color:white; border-radius:10px; cursor:pointer; font-weight:bold">Nova Conversa +</button>
-            <button id="btn-logout" style="margin-top: auto; padding: 12px; background: none; border: 1px solid #ff4444; color: #ff4444; border-radius: 10px; cursor: pointer;">Sair da Conta</button>
+            <button onclick="window.clearChat()" style="padding:12px; background:rgba(255,255,255,0.1); border:none; color:white; border-radius:10px; cursor:pointer; font-weight:bold">Nova Conversa +</button>
+            <button id="btn-logout" style="margin-top: auto; padding: 12px; background: none; border: 1px solid #ff4444; color: #ff4444; border-radius: 10px;">Sair</button>
         </aside>
 
         <main id="main-content" style="flex:1; display:flex; flex-direction:column;">
             <div class="settings-btn" onclick="toggleThemeMenu()">
-                <img src="Configroxa.png" id="configIcon" alt="Configurações">
+                <img src="Configroxa.png" id="configIcon">
             </div>
-
             <div id="theme-menu">
-                <button class="t-btn" style="background:#6d28d9" onclick="setTheme('roxo')">Tema Roxo</button>
-                <button class="t-btn" style="background:#888" onclick="setTheme('claro')">Tema Claro</button>
-                <button class="t-btn" style="background:#1a1a1a" onclick="setTheme('escuro')">Tema Preto</button>
+                <button class="t-btn" style="background:#6d28d9" onclick="setTheme('roxo')">Roxo</button>
+                <button class="t-btn" style="background:#888" onclick="setTheme('claro')">Claro</button>
+                <button class="t-btn" style="background:#1a1a1a" onclick="setTheme('escuro')">Preto</button>
             </div>
-
             <div id="chatWindow">
                 <div id="welcome" style="text-align:center; margin-top:15vh">
                     <img src="logoroxa.png" width="100" id="mainLogo">
-                    <h2 id="welcomeText" style="margin-top:10px">Olá!</h2>
+                    <h2 id="welcomeText">Olá!</h2>
                 </div>
             </div>
-
             <div class="footer-area">
                 <div class="input-wrapper">
-                    <input type="text" class="input-box" id="userInput" placeholder="Escreva uma mensagem..." autocomplete="off">
+                    <input type="text" class="input-box" id="userInput" placeholder="Escreva..." autocomplete="off">
                 </div>
             </div>
         </main>
@@ -102,8 +87,7 @@
             projectId: "escupt-ia",
             storageBucket: "escupt-ia.firebasestorage.app",
             messagingSenderId: "972278178048",
-            appId: "1:972278178048:web:86c0e2f204dbd873a453e5",
-            measurementId: "G-4S14BCEV9S"
+            appId: "1:972278178048:web:86c0e2f204dbd873a453e5"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -111,10 +95,7 @@
         const provider = new GoogleAuthProvider();
 
         window.loginComGoogle = () => signInWithRedirect(auth, provider);
-        window.logout = () => { 
-            window.clearChat(); // Limpa ao deslogar por segurança
-            signOut(auth).then(() => location.reload()); 
-        };
+        window.logout = () => signOut(auth).then(() => { localStorage.clear(); location.reload(); });
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -123,10 +104,9 @@
                 document.getElementById('userName').textContent = user.displayName;
                 document.getElementById('userPhoto').src = user.photoURL;
                 document.getElementById('userPhoto').style.display = "block";
-                document.getElementById('welcomeText').textContent = `Olá, ${user.displayName.split(' ')[0]}!`;
                 
-                // CARREGAMENTO FORÇADO
-                window.loadSavedChat();
+                // O segredo está aqui: carregar após a transição visual
+                setTimeout(() => { window.loadSavedChat(); }, 500);
             }
         });
 
@@ -137,13 +117,11 @@
     <script>
         const NGROK_URL = "https://chorographically-nonallegiance-rubye.ngrok-free.dev";
         const MODEL_NAME = "EscuptIA_Oficial";
-        
-        // Funções de Interface
+
         function toggleSidebar() {
-            const side = document.getElementById('sidebar');
+            document.getElementById('sidebar').classList.toggle('active');
             const over = document.getElementById('overlay');
-            side.classList.toggle('active');
-            over.style.display = side.classList.contains('active') ? 'block' : 'none';
+            over.style.display = over.style.display === 'block' ? 'none' : 'block';
         }
 
         function toggleThemeMenu() {
@@ -161,17 +139,15 @@
             document.getElementById('theme-menu').style.display = "none";
         };
 
-        // --- SISTEMA DE PERSISTÊNCIA REFEITO ---
-
+        // --- SISTEMA DE SALVAMENTO RADICAL ---
         window.loadSavedChat = function() {
-            const savedData = localStorage.getItem('escupt_v1_chat');
-            if (savedData) {
-                const history = JSON.parse(savedData);
+            const rawData = localStorage.getItem('chat_backup');
+            if (rawData) {
+                const history = JSON.parse(rawData);
                 if (history.length > 0) {
                     document.getElementById('welcome').style.display = "none";
                     const chatWindow = document.getElementById('chatWindow');
-                    chatWindow.innerHTML = ""; // Limpa antes de carregar
-                    
+                    chatWindow.innerHTML = ""; 
                     history.forEach(msg => {
                         const d = document.createElement('div');
                         d.className = `message ${msg.role === 'user' ? 'user-message' : 'ai-message'}`;
@@ -183,14 +159,15 @@
             }
         };
 
-        function saveToLocalStorage(role, content) {
-            let history = JSON.parse(localStorage.getItem('escupt_v1_chat') || "[]");
+        function forceSave(role, content) {
+            let history = JSON.parse(localStorage.getItem('chat_backup') || "[]");
             history.push({ role, content });
-            localStorage.setItem('escupt_v1_chat', JSON.stringify(history));
+            localStorage.setItem('chat_backup', JSON.stringify(history));
+            console.log("Salvo com sucesso");
         }
 
         window.clearChat = function() {
-            localStorage.removeItem('escupt_v1_chat');
+            localStorage.removeItem('chat_backup');
             location.reload();
         };
 
@@ -198,11 +175,10 @@
             if(!text.trim()) return;
             document.getElementById('welcome').style.display = "none";
             
-            // UI + Salvar Usuário
             addMsgToUI(text, 'user-message');
-            saveToLocalStorage('user', text);
+            forceSave('user', text);
 
-            const aiDiv = addMsgToUI("<i>Digitando...</i>", 'ai-message');
+            const aiDiv = addMsgToUI("...", 'ai-message');
 
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
@@ -211,26 +187,10 @@
                     body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
                 });
                 const data = await response.json();
-                
-                aiDiv.innerHTML = "";
-                typeWrite(aiDiv, data.response, () => {
-                    // Salvar IA após terminar de digitar
-                    saveToLocalStorage('assistant', data.response);
-                });
-            } catch (err) { aiDiv.textContent = "Erro de conexão."; }
-        }
-
-        function typeWrite(element, text, onComplete) {
-            let i = 0;
-            function t() {
-                if (i < text.length) {
-                    element.innerHTML = marked.parse(text.substring(0, i + 1));
-                    i++;
-                    document.getElementById('chatWindow').scrollTop = 99999;
-                    setTimeout(t, 5);
-                } else if (onComplete) { onComplete(); }
-            }
-            t();
+                aiDiv.innerHTML = marked.parse(data.response);
+                forceSave('ai', data.response);
+                document.getElementById('chatWindow').scrollTop = 99999;
+            } catch (err) { aiDiv.textContent = "Offline."; }
         }
 
         function addMsgToUI(text, cls) {
@@ -244,7 +204,10 @@
         }
 
         document.getElementById('userInput').addEventListener('keypress', e => {
-            if(e.key === 'Enter' && e.target.value) { sendMessage(e.target.value); e.target.value = ""; }
+            if(e.key === 'Enter' && e.target.value) { 
+                sendMessage(e.target.value); 
+                e.target.value = ""; 
+            }
         });
     </script>
 </body>
