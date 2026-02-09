@@ -212,7 +212,7 @@
             if(!text.trim()) return;
             document.getElementById('welcome').style.display = "none";
             addMsgToUI(text, 'user-message');
-            const aiDiv = addMsgToUI("<i>Digitando...</i>", 'ai-message');
+            const aiDiv = addMsgToUI("<i>Escupt está pensando...</i>", 'ai-message');
 
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
@@ -254,3 +254,4 @@
     </script>
 </body>
 </html>
+
