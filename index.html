@@ -4,77 +4,32 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>Escupt IA</title>
-    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
     <style>
-        :root {
-            --bg-main: #2a004f; --bg-sidebar: #4b0082; --bg-input: #3d0070;
-            --text-color: #ffffff; --msg-user: #6d28d9; --msg-ai: rgba(255, 255, 255, 0.1);
-        }
-        [data-theme="claro"] {
-            --bg-main: #ffffff; --bg-sidebar: #b3b3b3; --bg-input: #e0e0e0;
-            --text-color: #000000; --msg-user: #808080; --msg-ai: #f0f0f0;
-        }
-        [data-theme="escuro"] {
-            --bg-main: #000000; --bg-sidebar: #1a1a1a; --bg-input: #262626;
-            --text-color: #ffffff; --msg-user: #333333; --msg-ai: #1a1a1a;
-        }
-
+        :root { --bg-main: #2a004f; --bg-sidebar: #4b0082; --bg-input: #3d0070; --text-color: #ffffff; --msg-user: #6d28d9; --msg-ai: rgba(255, 255, 255, 0.1); }
+        [data-theme="claro"] { --bg-main: #ffffff; --bg-sidebar: #b3b3b3; --bg-input: #e0e0e0; --text-color: #000000; --msg-user: #808080; --msg-ai: #f0f0f0; }
+        [data-theme="escuro"] { --bg-main: #000000; --bg-sidebar: #1a1a1a; --bg-input: #262626; --text-color: #ffffff; --msg-user: #333333; --msg-ai: #1a1a1a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; overflow: hidden; display: flex; }
-
-        /* TELA DE LOGIN */
-        #login-screen {
-            position: fixed; inset: 0; background: var(--bg-main);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000;
-        }
+        #login-screen { position: fixed; inset: 0; background: var(--bg-main); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
         .login-card { background: var(--bg-input); padding: 40px; border-radius: 25px; text-align: center; width: 90%; max-width: 350px; }
-        .google-btn {
-            background: white; color: #444; border: none; padding: 12px; border-radius: 10px; 
-            font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; margin-top: 20px;
-        }
-
-        /* APP CONTAINER */
+        .google-btn { background: white; color: #444; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; margin-top: 20px; }
         #app-container { display: none; width: 100%; height: 100%; position: relative; }
-
-        /* SIDEBAR */
-        #sidebar { 
-            width: 260px; background-color: var(--bg-sidebar); 
-            display: flex; flex-direction: column; padding: 20px; 
-            position: fixed; left: -260px; height: 100%; transition: 0.3s; z-index: 9000;
-        }
+        #sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; padding: 20px; position: fixed; left: -260px; height: 100%; transition: 0.3s; z-index: 9000; }
         #sidebar.active { left: 0; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
-
-        /* BOTÕES TOPO */
         .menu-toggle { position: fixed; top: 15px; left: 15px; font-size: 24px; cursor: pointer; z-index: 8000; }
         .settings-btn { position: fixed; top: 15px; right: 15px; width: 38px; height: 38px; cursor: pointer; z-index: 8000; display: flex; align-items: center; justify-content: center; }
-        .settings-btn img { width: 100%; height: 100%; object-fit: contain; }
-        
-        /* MENU DE TEMAS */
-        #theme-menu { 
-            position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
-            padding: 10px; border-radius: 15px; display: none; flex-direction: column; gap: 8px; z-index: 9500;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
-        }
-        .t-btn { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; text-align: left; font-size: 0.9rem; }
-
-        /* CHAT */
+        #theme-menu { position: fixed; top: 65px; right: 15px; background: var(--bg-input); padding: 10px; border-radius: 15px; display: none; flex-direction: column; gap: 8px; z-index: 9500; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .t-btn { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; text-align: left; }
         #chatWindow { flex: 1; overflow-y: auto; padding: 80px 15px 150px; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 0.95rem; word-wrap: break-word; }
         .user-message { align-self: flex-end; background: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background: var(--msg-ai); border-bottom-left-radius: 4px; }
-
         .footer-area { position: absolute; bottom: 0; width: 100%; padding: 15px; background: var(--bg-main); display: flex; justify-content: center; }
         .input-wrapper { width: 100%; max-width: 800px; background: var(--bg-input); border-radius: 30px; padding: 5px 15px; display: flex; align-items: center; }
         .input-box { flex: 1; padding: 12px; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
-
-        @media (min-width: 1024px) {
-            #sidebar { position: relative; left: 0; }
-            .menu-toggle { display: none; }
-            #app-container { display: flex; }
-        }
+        @media (min-width: 1024px) { #sidebar { position: relative; left: 0; } .menu-toggle { display: none; } #app-container { display: flex; } }
     </style>
 </head>
 <body data-theme="roxo">
@@ -148,7 +103,7 @@
         const provider = new GoogleAuthProvider();
 
         window.loginComGoogle = () => signInWithRedirect(auth, provider);
-        window.logout = () => signOut(auth).then(() => { localStorage.removeItem('escupt_chat'); location.reload(); });
+        window.logout = () => signOut(auth).then(() => { localStorage.clear(); location.reload(); });
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -158,7 +113,9 @@
                 document.getElementById('userPhoto').src = user.photoURL;
                 document.getElementById('userPhoto').style.display = "block";
                 document.getElementById('welcomeText').textContent = `Olá, ${user.displayName.split(' ')[0]}!`;
-                loadSavedChat(); // Carrega as mensagens salvas ao entrar
+                
+                // Pequeno atraso para garantir que o DOM carregou antes de restaurar o chat
+                setTimeout(loadSavedChat, 100);
             }
         });
 
@@ -169,7 +126,9 @@
     <script>
         const NGROK_URL = "https://chorographically-nonallegiance-rubye.ngrok-free.dev";
         const MODEL_NAME = "EscuptIA_Oficial";
-        let chatHistory = JSON.parse(localStorage.getItem('escupt_chat')) || [];
+        
+        // Memória local para persistência
+        let chatHistory = [];
 
         function toggleSidebar() {
             const side = document.getElementById('sidebar');
@@ -186,56 +145,83 @@
         window.setTheme = (t) => {
             document.body.setAttribute('data-theme', t);
             const mainLogo = document.getElementById('mainLogo');
-            const loginLogo = document.getElementById('loginLogo');
             const icon = document.getElementById('configIcon');
-            if(t === 'roxo') { mainLogo.src = loginLogo.src = "logoroxa.png"; icon.src = "Configroxa.png"; }
-            else if(t === 'claro') { mainLogo.src = loginLogo.src = "logobranca.png"; icon.src = "Configbranca.png"; }
-            else { mainLogo.src = loginLogo.src = "logoescura.png"; icon.src = "Configescura.png"; }
+            if(t === 'roxo') { mainLogo.src = "logoroxa.png"; icon.src = "Configroxa.png"; }
+            else if(t === 'claro') { mainLogo.src = "logobranca.png"; icon.src = "Configbranca.png"; }
+            else { mainLogo.src = "logoescura.png"; icon.src = "Configescura.png"; }
             document.getElementById('theme-menu').style.display = "none";
         };
 
-        // SALVAR E CARREGAR MENSAGENS
-        function saveMessage(role, text) {
-            chatHistory.push({ role, text });
-            localStorage.setItem('escupt_chat', JSON.stringify(chatHistory));
+        // SALVAMENTO ROBUSTO
+        function saveToStorage() {
+            try {
+                localStorage.setItem('escupt_history', JSON.stringify(chatHistory));
+            } catch (e) {
+                console.error("Erro ao salvar no LocalStorage", e);
+            }
         }
 
         function loadSavedChat() {
-            if (chatHistory.length > 0) {
-                document.getElementById('welcome').style.display = "none";
-                chatHistory.forEach(msg => {
-                    const cls = msg.role === 'user' ? 'user-message' : 'ai-message';
-                    addMsgToUI(msg.text, cls, false); // false para não salvar de novo ao carregar
-                });
+            const saved = localStorage.getItem('escupt_history');
+            if (saved) {
+                chatHistory = JSON.parse(saved);
+                if (chatHistory.length > 0) {
+                    document.getElementById('welcome').style.display = "none";
+                    const chatWindow = document.getElementById('chatWindow');
+                    chatHistory.forEach(msg => {
+                        const d = document.createElement('div');
+                        d.className = `message ${msg.role === 'user' ? 'user-message' : 'ai-message'}`;
+                        d.innerHTML = marked.parse(msg.content);
+                        chatWindow.appendChild(d);
+                    });
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }
             }
         }
 
         function clearChat() {
-            localStorage.removeItem('escupt_chat');
+            localStorage.removeItem('escupt_history');
+            chatHistory = [];
             location.reload();
         }
 
         async function sendMessage(text) {
             if(!text.trim()) return;
             document.getElementById('welcome').style.display = "none";
-            addMsgToUI(text, 'user-message', true);
             
-            const aiDiv = addMsgToUI("<i>Digitando...</i>", 'ai-message', false);
+            // Adiciona mensagem do usuário à UI e ao Histórico
+            addMsgToUI(text, 'user-message');
+            chatHistory.push({ role: 'user', content: text });
+            saveToStorage();
+
+            const aiDiv = addMsgToUI("<i>Digitando...</i>", 'ai-message');
 
             try {
+                // Enviamos o histórico completo para a IA ter memória
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
+                    body: JSON.stringify({ 
+                        model: MODEL_NAME, 
+                        prompt: text, 
+                        stream: false,
+                        context: [] // Aqui você poderia passar o contexto do Ollama se quiser memória profunda
+                    })
                 });
+                
                 const data = await response.json();
                 aiDiv.innerHTML = "";
-                typeWrite(aiDiv, data.response);
-                saveMessage('ai', data.response); // Salva a resposta da IA
-            } catch (err) { aiDiv.textContent = "Erro de conexão."; }
+                typeWrite(aiDiv, data.response, () => {
+                    chatHistory.push({ role: 'assistant', content: data.response });
+                    saveToStorage();
+                });
+
+            } catch (err) { 
+                aiDiv.textContent = "Erro de conexão. Verifique o Ngrok."; 
+            }
         }
 
-        function typeWrite(element, text) {
+        function typeWrite(element, text, onComplete) {
             let i = 0;
             function t() {
                 if (i < text.length) {
@@ -243,18 +229,20 @@
                     i++;
                     document.getElementById('chatWindow').scrollTop = 99999;
                     setTimeout(t, 5);
+                } else if (onComplete) {
+                    onComplete();
                 }
             }
             t();
         }
 
-        function addMsgToUI(text, cls, shouldSave) {
+        function addMsgToUI(text, cls) {
             const d = document.createElement('div');
             d.className = `message ${cls}`;
             d.innerHTML = marked.parse(text);
-            document.getElementById('chatWindow').appendChild(d);
-            document.getElementById('chatWindow').scrollTop = 99999;
-            if(shouldSave) saveMessage(cls === 'user-message' ? 'user' : 'ai', text);
+            const cw = document.getElementById('chatWindow');
+            cw.appendChild(d);
+            cw.scrollTop = cw.scrollHeight;
             return d;
         }
 
