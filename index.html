@@ -189,7 +189,7 @@
             document.getElementById('chatWindow').style.display = "flex";
             addMsgToUI(text, 'user-message');
             saveMsg(currentChatId, text, 'user');
-            const aiDiv = addMsgToUI("...", 'ai-message');
+            const aiDiv = addMsgToUI("Escupt está pensando...", 'ai-message');
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
@@ -258,3 +258,4 @@
     </script>
 </body>
 </html>
+
