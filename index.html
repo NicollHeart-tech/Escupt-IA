@@ -11,7 +11,6 @@
         :root {
             --bg-main: #2a004f; --bg-sidebar: #4b0082; --bg-input: #3d0070;
             --text-color: #ffffff; --msg-user: #6d28d9; --msg-ai: rgba(255, 255, 255, 0.1);
-            --header-fixo: #2a004f; /* Cor travada para o retângulo do topo */
         }
         [data-theme="claro"] {
             --bg-main: #ffffff; --bg-sidebar: #b3b3b3; --bg-input: #e0e0e0;
@@ -35,16 +34,16 @@
         #sidebar.active { left: 0; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
 
-        /* HEADER (APENAS CELULAR) */
+        /* HEADER (AGORA MUDA DE COR COM O TEMA) */
         .top-bar {
             position: absolute; top: 0; width: 100%; height: 60px;
-            background-color: var(--header-fixo); /* Cor fixa */
+            background-color: var(--bg-main); /* Segue a cor do tema */
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 15px; z-index: 8000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .menu-toggle { font-size: 1.8rem; cursor: pointer; color: #ffffff; } /* Ícone branco fixo */
+        .menu-toggle { font-size: 1.8rem; cursor: pointer; color: var(--text-color); } 
         
         .settings-btn { 
             width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -74,7 +73,7 @@
         .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
 
-        /* FOOTER */
+        /* FOOTER (TAMBÉM SEGUE O TEMA) */
         .footer-area { 
             position: absolute; bottom: 0; width: 100%; 
             background-color: var(--bg-main); 
@@ -86,8 +85,8 @@
         /* RESPONSIVIDADE (PC) */
         @media (min-width: 1024px) {
             #sidebar { left: 0; position: relative; }
-            .top-bar { display: none; } /* ESCONDE O RETÂNGULO NO PC */
-            #chatWindow { padding-top: 40px; } /* Ajusta o chat no PC sem a barra */
+            .top-bar { display: none; } /* Esconde o retângulo no PC */
+            #chatWindow { padding-top: 40px; }
             #overlay { display: none !important; }
         }
     </style>
@@ -104,7 +103,7 @@
     <main id="main-content">
         <header class="top-bar">
             <div class="menu-toggle" onclick="openSidebar()">☰</div>
-            <div style="font-weight: bold; font-size: 1.1rem; color: #fff;">Escupt IA</div>
+            <div style="font-weight: bold; font-size: 1.1rem;">Escupt IA</div>
             <div class="settings-btn" onclick="toggleThemeMenu()">
                 <img src="Configroxa.png" id="configIconMobile">
             </div>
@@ -164,7 +163,6 @@
             iconPC.src = iconPath;
         }
 
-        // Ajusta visibilidade do botão de config no PC
         function checkPC() {
             const btnPC = document.getElementById('configPC');
             if (window.innerWidth >= 1024) { btnPC.style.display = 'flex'; } 
