@@ -11,7 +11,7 @@
         :root {
             --bg-main: #2a004f; --bg-sidebar: #4b0082; --bg-input: #3d0070;
             --text-color: #ffffff; --msg-user: #6d28d9; --msg-ai: rgba(255, 255, 255, 0.1);
-            --header-footer-bg: var(--bg-main); /* Mesma cor para topo e base */
+            --header-fixo: #2a004f; /* Cor travada para o retângulo do topo */
         }
         [data-theme="claro"] {
             --bg-main: #ffffff; --bg-sidebar: #b3b3b3; --bg-input: #e0e0e0;
@@ -35,16 +35,16 @@
         #sidebar.active { left: 0; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
 
-        /* HEADER (BARRA DO TOPO) */
+        /* HEADER (APENAS CELULAR) */
         .top-bar {
             position: absolute; top: 0; width: 100%; height: 60px;
-            background-color: var(--header-footer-bg);
+            background-color: var(--header-fixo); /* Cor fixa */
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 15px; z-index: 8000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-        .menu-toggle { font-size: 1.8rem; cursor: pointer; color: var(--text-color); }
+        .menu-toggle { font-size: 1.8rem; cursor: pointer; color: #ffffff; } /* Ícone branco fixo */
         
         .settings-btn { 
             width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -61,32 +61,34 @@
         /* CONTEÚDO PRINCIPAL */
         #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; height: 100%; }
         
-        .welcome-screen { text-align: center; margin-top: 25vh; flex: 1; }
-        .welcome-screen img { width: 100px; margin-bottom: 20px; }
-
-        /* AJUSTE DO PADDING PARA NÃO FICAR ATRÁS DAS BARRAS */
         #chatWindow { 
             flex: 1; overflow-y: auto; 
-            padding: 80px 15px 120px; /* 80px no topo para compensar a top-bar */
+            padding: 80px 15px 120px; 
             display: none; flex-direction: column; gap: 15px; 
         }
         
+        .welcome-screen { text-align: center; margin-top: 25vh; flex: 1; }
+        .welcome-screen img { width: 100px; margin-bottom: 20px; }
+
         .message { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
         .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
 
-        /* FOOTER (BARRA DE BAIXO) */
+        /* FOOTER */
         .footer-area { 
             position: absolute; bottom: 0; width: 100%; 
-            background-color: var(--header-footer-bg); 
+            background-color: var(--bg-main); 
             padding: 15px 10px 25px; display: flex; justify-content: center; z-index: 8000;
         }
         .input-wrapper { width: 100%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; padding: 5px 20px; }
         .input-box { width: 100%; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
 
+        /* RESPONSIVIDADE (PC) */
         @media (min-width: 1024px) {
             #sidebar { left: 0; position: relative; }
-            .menu-toggle, #overlay { display: none; }
+            .top-bar { display: none; } /* ESCONDE O RETÂNGULO NO PC */
+            #chatWindow { padding-top: 40px; } /* Ajusta o chat no PC sem a barra */
+            #overlay { display: none !important; }
         }
     </style>
 </head>
@@ -102,11 +104,15 @@
     <main id="main-content">
         <header class="top-bar">
             <div class="menu-toggle" onclick="openSidebar()">☰</div>
-            <div style="font-weight: bold; font-size: 1.1rem;">Escupt IA</div>
+            <div style="font-weight: bold; font-size: 1.1rem; color: #fff;">Escupt IA</div>
             <div class="settings-btn" onclick="toggleThemeMenu()">
-                <img src="Configroxa.png" id="configIcon">
+                <img src="Configroxa.png" id="configIconMobile">
             </div>
         </header>
+
+        <div class="settings-btn" id="configPC" style="position: absolute; top: 10px; right: 10px; display: none;" onclick="toggleThemeMenu()">
+            <img src="Configroxa.png" id="configIconPC">
+        </div>
         
         <div id="theme-menu">
             <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')">Roxo</button>
@@ -139,13 +145,33 @@
             document.body.setAttribute('data-theme', t);
             localStorage.setItem('escupt_theme', t);
             document.getElementById('theme-menu').style.display = 'none';
-            const logo = document.getElementById('mainLogo');
-            const icon = document.getElementById('configIcon');
             
-            if (t === 'roxo') { if(logo) logo.src = "logoroxa.png"; icon.src = "Configroxa.png"; }
-            else if (t === 'claro') { if(logo) logo.src = "logobranca.png"; icon.src = "Configbranca.png"; }
-            else if (t === 'escuro') { if(logo) logo.src = "logoescura.png"; icon.src = "Configescura.png"; }
+            const logo = document.getElementById('mainLogo');
+            const iconMobile = document.getElementById('configIconMobile');
+            const iconPC = document.getElementById('configIconPC');
+            
+            let iconPath = "Configroxa.png";
+            if (t === 'claro') iconPath = "Configbranca.png";
+            if (t === 'escuro') iconPath = "Configescura.png";
+            
+            if(logo) {
+                if(t === 'roxo') logo.src = "logoroxa.png";
+                else if(t === 'claro') logo.src = "logobranca.png";
+                else logo.src = "logoescura.png";
+            }
+            
+            iconMobile.src = iconPath;
+            iconPC.src = iconPath;
         }
+
+        // Ajusta visibilidade do botão de config no PC
+        function checkPC() {
+            const btnPC = document.getElementById('configPC');
+            if (window.innerWidth >= 1024) { btnPC.style.display = 'flex'; } 
+            else { btnPC.style.display = 'none'; }
+        }
+        window.onresize = checkPC;
+        checkPC();
 
         function toggleThemeMenu() {
             const m = document.getElementById('theme-menu');
