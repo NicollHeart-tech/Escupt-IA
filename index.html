@@ -4,6 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>Escupt IA</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
@@ -24,55 +25,69 @@
         body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; display: flex; overflow: hidden; }
 
         /* SIDEBAR */
-        #sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; padding: 20px; z-index: 9000; transition: 0.3s; position: fixed; left: -260px; height: 100%; }
+        #sidebar { 
+            width: 260px; background-color: var(--bg-sidebar); 
+            display: flex; flex-direction: column; padding: 20px; 
+            z-index: 9000; transition: 0.3s;
+            position: fixed; left: -260px; height: 100%;
+        }
         #sidebar.active { left: 0; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
 
-        /* HEADER MOBILE */
-        .top-bar { position: absolute; top: 0; width: 100%; height: 60px; background-color: var(--bg-main); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 8000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .menu-toggle { font-size: 1.8rem; cursor: pointer; color: var(--text-color); }
-        .settings-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .settings-btn img { width: 24px; height: 24px; }
+        /* HEADER (AGORA MUDA DE COR COM O TEMA) */
+        .top-bar {
+            position: absolute; top: 0; width: 100%; height: 60px;
+            background-color: var(--bg-main); /* Segue a cor do tema */
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; z-index: 8000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-        /* CHAT WINDOW */
-        #chatWindow { flex: 1; overflow-y: auto; padding: 80px 15px 150px; display: none; flex-direction: column; gap: 15px; }
+        .menu-toggle { font-size: 1.8rem; cursor: pointer; color: var(--text-color); } 
         
-        .message { 
-            max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; 
-            display: flex; flex-direction: column; align-items: center; text-align: center;
+        .settings-btn { 
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-
-        /* VOCÊ NA DIREITA */
-        .user-message { 
-            align-self: flex-end; 
-            background-color: var(--msg-user); 
-            color: white; 
-            border-bottom-right-radius: 4px; 
-        }
-
-        /* IA NA ESQUERDA */
-        .ai-message { 
-            align-self: flex-start; 
-            background-color: var(--msg-ai); 
-            color: var(--text-color); 
-            border-bottom-left-radius: 4px; 
-        }
-
-        .msg-img { max-width: 100%; width: 220px; border-radius: 10px; margin-bottom: 8px; display: block; }
-
-        /* FOOTER & PREVIEW */
-        .footer-area { position: absolute; bottom: 0; width: 100%; background-color: var(--bg-main); padding: 15px 10px 25px; display: flex; flex-direction: column; align-items: center; z-index: 8000; }
-        #imagePreviewContainer { display: none; background: var(--bg-input); padding: 10px; border-radius: 15px; margin-bottom: 10px; position: relative; border: 2px solid var(--msg-user); }
-        #imagePreview { max-width: 100px; max-height: 100px; border-radius: 8px; }
+        .settings-btn img { width: 24px; height: 24px; object-fit: contain; }
         
-        .input-wrapper { width: 100%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; padding: 5px 20px; display: flex; align-items: center; }
-        .input-box { flex: 1; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
-        .attach-btn { margin-right: 12px; cursor: pointer; font-size: 1.4rem; opacity: 0.7; }
+        #theme-menu {
+            position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
+            padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9500; min-width: 180px;
+        }
+        .t-btn { border: none; padding: 12px; border-radius: 10px; cursor: pointer; color: white; font-weight: bold; text-align: left; }
 
+        /* CONTEÚDO PRINCIPAL */
+        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; height: 100%; }
+        
+        #chatWindow { 
+            flex: 1; overflow-y: auto; 
+            padding: 80px 15px 120px; 
+            display: none; flex-direction: column; gap: 15px; 
+        }
+        
+        .welcome-screen { text-align: center; margin-top: 25vh; flex: 1; }
+        .welcome-screen img { width: 100px; margin-bottom: 20px; }
+
+        .message { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
+        .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
+
+        /* FOOTER (TAMBÉM SEGUE O TEMA) */
+        .footer-area { 
+            position: absolute; bottom: 0; width: 100%; 
+            background-color: var(--bg-main); 
+            padding: 15px 10px 25px; display: flex; justify-content: center; z-index: 8000;
+        }
+        .input-wrapper { width: 100%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; padding: 5px 20px; }
+        .input-box { width: 100%; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
+
+        /* RESPONSIVIDADE (PC) */
         @media (min-width: 1024px) {
             #sidebar { left: 0; position: relative; }
-            .top-bar { display: none; }
+            .top-bar { display: none; } /* Esconde o retângulo no PC */
             #chatWindow { padding-top: 40px; }
+            #overlay { display: none !important; }
         }
     </style>
 </head>
@@ -88,34 +103,32 @@
     <main id="main-content">
         <header class="top-bar">
             <div class="menu-toggle" onclick="openSidebar()">☰</div>
-            <div style="font-weight: bold;">Escupt IA</div>
-            <div class="settings-btn" onclick="toggleThemeMenu()"><img src="Configroxa.png" id="configIconMobile"></div>
+            <div style="font-weight: bold; font-size: 1.1rem;">Escupt IA</div>
+            <div class="settings-btn" onclick="toggleThemeMenu()">
+                <img src="Configroxa.png" id="configIconMobile">
+            </div>
         </header>
 
-        <div id="theme-menu" style="position: fixed; top: 65px; right: 15px; background: var(--bg-input); padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 10px; z-index: 9500;">
-            <button onclick="setTheme('roxo')" style="background:#6d28d9; border:none; padding:10px; color:white; border-radius:8px; cursor:pointer;">Roxo</button>
-            <button onclick="setTheme('claro')" style="background:#888; border:none; padding:10px; color:white; border-radius:8px; cursor:pointer;">Claro</button>
-            <button onclick="setTheme('escuro')" style="background:#1a1a1a; border:none; padding:10px; color:white; border-radius:8px; cursor:pointer;">Preto</button>
+        <div class="settings-btn" id="configPC" style="position: absolute; top: 10px; right: 10px; display: none;" onclick="toggleThemeMenu()">
+            <img src="Configroxa.png" id="configIconPC">
+        </div>
+        
+        <div id="theme-menu">
+            <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')">Roxo</button>
+            <button class="t-btn" style="background:#888;" onclick="setTheme('claro')">Claro</button>
+            <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')">Preto</button>
         </div>
 
         <div class="welcome-screen" id="welcomeScreen">
             <img src="logoroxa.png" id="mainLogo">
-            <h2>Escupt IA Visão</h2>
+            <h2>Como posso ajudar?</h2>
         </div>
 
         <div id="chatWindow"></div>
 
         <div class="footer-area">
-            <div id="imagePreviewContainer">
-                <img id="imagePreview" src="">
-                <div onclick="cancelImage()" style="position:absolute; top:-10px; right:-10px; background:red; color:white; border-radius:50%; width:22px; height:22px; text-align:center; cursor:pointer; font-size:14px; line-height:22px;">✕</div>
-            </div>
             <div class="input-wrapper">
-                <label class="attach-btn">
-                    📎
-                    <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="handleImage(this)">
-                </label>
-                <input type="text" class="input-box" id="userInput" placeholder="Mande uma mensagem ou foto..." autocomplete="off">
+                <input type="text" class="input-box" id="userInput" placeholder="Escreva aqui..." autocomplete="off">
             </div>
         </div>
     </main>
@@ -123,63 +136,65 @@
     <script>
         const NGROK_URL = "https://chorographically-nonallegiance-rubye.ngrok-free.dev";
         const MODEL_NAME = "EscuptIA_Oficial";
+        
         let chats = JSON.parse(localStorage.getItem('escupt_chats')) || [];
         let currentChatId = null;
-        let selectedImageBase64 = null;
 
-        function handleImage(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    selectedImageBase64 = e.target.result.split(',')[1];
-                    document.getElementById('imagePreview').src = e.target.result;
-                    document.getElementById('imagePreviewContainer').style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+        function setTheme(t) {
+            document.body.setAttribute('data-theme', t);
+            localStorage.setItem('escupt_theme', t);
+            document.getElementById('theme-menu').style.display = 'none';
+            
+            const logo = document.getElementById('mainLogo');
+            const iconMobile = document.getElementById('configIconMobile');
+            const iconPC = document.getElementById('configIconPC');
+            
+            let iconPath = "Configroxa.png";
+            if (t === 'claro') iconPath = "Configbranca.png";
+            if (t === 'escuro') iconPath = "Configescura.png";
+            
+            if(logo) {
+                if(t === 'roxo') logo.src = "logoroxa.png";
+                else if(t === 'claro') logo.src = "logobranca.png";
+                else logo.src = "logoescura.png";
             }
+            
+            iconMobile.src = iconPath;
+            iconPC.src = iconPath;
         }
 
-        function cancelImage() {
-            selectedImageBase64 = null;
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            document.getElementById('imageUpload').value = "";
+        function checkPC() {
+            const btnPC = document.getElementById('configPC');
+            if (window.innerWidth >= 1024) { btnPC.style.display = 'flex'; } 
+            else { btnPC.style.display = 'none'; }
         }
+        window.onresize = checkPC;
+        checkPC();
+
+        function toggleThemeMenu() {
+            const m = document.getElementById('theme-menu');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function openSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display='block'; }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
 
         async function sendMessage(text) {
-            if (!text.trim() && !selectedImageBase64) return;
+            if (!text.trim()) return;
             if (!currentChatId) {
                 currentChatId = Date.now();
-                chats.push({ id: currentChatId, title: text.substring(0, 30) || "Imagem", messages: [] });
+                chats.push({ id: currentChatId, title: text.substring(0, 30), messages: [] });
             }
-
             document.getElementById('welcomeScreen').style.display = "none";
             document.getElementById('chatWindow').style.display = "flex";
-
-            const userDiv = addMsgToUI(text, 'user-message');
-            if (selectedImageBase64) {
-                const img = document.createElement('img');
-                img.src = `data:image/png;base64,${selectedImageBase64}`;
-                img.className = 'msg-img';
-                userDiv.prepend(img);
-            }
-
-            saveMsg(currentChatId, text, 'user', selectedImageBase64);
-            const imgToSend = selectedImageBase64;
-            cancelImage();
-
-            const aiDiv = addMsgToUI("Pensando...", 'ai-message');
-
+            addMsgToUI(text, 'user-message');
+            saveMsg(currentChatId, text, 'user');
+            const aiDiv = addMsgToUI("...", 'ai-message');
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        model: MODEL_NAME, 
-                        prompt: text, 
-                        stream: false,
-                        images: imgToSend ? [imgToSend] : []
-                    })
+                    body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
                 });
                 const data = await response.json();
                 aiDiv.innerHTML = marked.parse(data.response);
@@ -191,37 +206,21 @@
         function addMsgToUI(txt, cls) {
             const d = document.createElement('div');
             d.className = `message ${cls}`;
-            d.innerHTML = txt ? `<div>${marked.parse(txt)}</div>` : "";
+            d.innerHTML = marked.parse(txt || "");
             const cw = document.getElementById('chatWindow');
             cw.appendChild(d);
             cw.scrollTop = cw.scrollHeight;
             return d;
         }
 
-        function saveMsg(id, text, role, img) {
+        function saveMsg(id, text, role) {
             const c = chats.find(x => x.id === id);
-            if(c) { c.messages.push({ text, role, img }); localStorage.setItem('escupt_chats', JSON.stringify(chats)); }
-        }
-
-        function loadChat(id) {
-            currentChatId = id; const c = chats.find(x => x.id === id);
-            document.getElementById('welcomeScreen').style.display = "none";
-            const cw = document.getElementById('chatWindow');
-            cw.style.display = "flex"; cw.innerHTML = "";
-            c.messages.forEach(m => {
-                const d = addMsgToUI(m.text, m.role === 'user' ? 'user-message' : 'ai-message');
-                if (m.img) {
-                    const img = document.createElement('img');
-                    img.src = `data:image/png;base64,${m.img}`;
-                    img.className = 'msg-img';
-                    d.prepend(img);
-                }
-            });
-            renderHistory();
+            if(c) { c.messages.push({ text, role }); localStorage.setItem('escupt_chats', JSON.stringify(chats)); }
         }
 
         function renderHistory() {
-            const hl = document.getElementById('history'); hl.innerHTML = "";
+            const hl = document.getElementById('history');
+            hl.innerHTML = "";
             chats.slice().reverse().forEach(c => {
                 const d = document.createElement('div');
                 d.style.cssText = "padding:12px; color:white; cursor:pointer; border-radius:10px; margin-bottom:5px; font-size:0.85rem; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; background: rgba(255,255,255,0.05);";
@@ -232,14 +231,26 @@
             });
         }
 
-        function startNewChat() { currentChatId = null; document.getElementById('chatWindow').innerHTML = ""; document.getElementById('chatWindow').style.display = "none"; document.getElementById('welcomeScreen').style.display = "block"; renderHistory(); }
-        function setTheme(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('escupt_theme', t); }
-        function toggleThemeMenu() { const m = document.getElementById('theme-menu'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-        function openSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display='block'; }
-        function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
+        function loadChat(id) {
+            currentChatId = id; 
+            const c = chats.find(x => x.id === id);
+            document.getElementById('welcomeScreen').style.display = "none";
+            const cw = document.getElementById('chatWindow');
+            cw.style.display = "flex"; cw.innerHTML = "";
+            c.messages.forEach(m => addMsgToUI(m.text, m.role === 'user' ? 'user-message' : 'ai-message'));
+            renderHistory();
+        }
+
+        function startNewChat() { 
+            currentChatId = null; 
+            document.getElementById('chatWindow').innerHTML = ""; 
+            document.getElementById('chatWindow').style.display = "none"; 
+            document.getElementById('welcomeScreen').style.display = "block"; 
+            renderHistory(); 
+        }
 
         document.getElementById('userInput').addEventListener('keypress', (e) => { 
-            if(e.key === 'Enter') { sendMessage(e.target.value); e.target.value = ""; } 
+            if(e.key === 'Enter' && e.target.value.trim()) { sendMessage(e.target.value); e.target.value = ""; } 
         });
 
         setTheme(localStorage.getItem('escupt_theme') || 'roxo');
