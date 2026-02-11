@@ -34,10 +34,10 @@
         #sidebar.active { left: 0; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
 
-        /* HEADER (AGORA MUDA DE COR COM O TEMA) */
+        /* HEADER */
         .top-bar {
             position: absolute; top: 0; width: 100%; height: 60px;
-            background-color: var(--bg-main); /* Segue a cor do tema */
+            background-color: var(--bg-main);
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 15px; z-index: 8000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -69,11 +69,23 @@
         .welcome-screen { text-align: center; margin-top: 25vh; flex: 1; }
         .welcome-screen img { width: 100px; margin-bottom: 20px; }
 
-        .message { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .message { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; position: relative; }
         .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
 
-        /* FOOTER (TAMBÉM SEGUE O TEMA) */
+        /* ANIMAÇÃO DE ESCREVER */
+        .typing { display: flex; gap: 4px; padding: 10px 0; }
+        .typing span { width: 8px; height: 8px; background: var(--text-color); border-radius: 50%; opacity: 0.4; animation: blink 1.4s infinite both; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes blink {
+            0% { opacity: 0.4; transform: scale(1); }
+            20% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.4; transform: scale(1); }
+        }
+
+        /* FOOTER */
         .footer-area { 
             position: absolute; bottom: 0; width: 100%; 
             background-color: var(--bg-main); 
@@ -82,10 +94,9 @@
         .input-wrapper { width: 100%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; padding: 5px 20px; }
         .input-box { width: 100%; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
 
-        /* RESPONSIVIDADE (PC) */
         @media (min-width: 1024px) {
             #sidebar { left: 0; position: relative; }
-            .top-bar { display: none; } /* Esconde o retângulo no PC */
+            .top-bar { display: none; }
             #chatWindow { padding-top: 40px; }
             #overlay { display: none !important; }
         }
@@ -144,21 +155,17 @@
             document.body.setAttribute('data-theme', t);
             localStorage.setItem('escupt_theme', t);
             document.getElementById('theme-menu').style.display = 'none';
-            
             const logo = document.getElementById('mainLogo');
             const iconMobile = document.getElementById('configIconMobile');
             const iconPC = document.getElementById('configIconPC');
-            
             let iconPath = "Configroxa.png";
             if (t === 'claro') iconPath = "Configbranca.png";
             if (t === 'escuro') iconPath = "Configescura.png";
-            
             if(logo) {
                 if(t === 'roxo') logo.src = "logoroxa.png";
                 else if(t === 'claro') logo.src = "logobranca.png";
                 else logo.src = "logoescura.png";
             }
-            
             iconMobile.src = iconPath;
             iconPC.src = iconPath;
         }
@@ -187,9 +194,13 @@
             }
             document.getElementById('welcomeScreen').style.display = "none";
             document.getElementById('chatWindow').style.display = "flex";
+            
             addMsgToUI(text, 'user-message');
             saveMsg(currentChatId, text, 'user');
-            const aiDiv = addMsgToUI("...", 'ai-message');
+
+            // Criar balão da IA com animação de digitando
+            const aiDiv = addMsgToUI('<div class="typing"><span></span><span></span><span></span></div>', 'ai-message');
+            
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
@@ -197,16 +208,42 @@
                     body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
                 });
                 const data = await response.json();
-                aiDiv.innerHTML = marked.parse(data.response);
+                
+                // Remover animação e aplicar efeito de escrita
+                aiDiv.innerHTML = "";
+                await typeWriter(aiDiv, data.response);
+                
                 saveMsg(currentChatId, data.response, 'ai');
-            } catch (err) { aiDiv.textContent = "Erro ao conectar."; }
+            } catch (err) { 
+                aiDiv.textContent = "Erro ao conectar."; 
+            }
             renderHistory();
+        }
+
+        function typeWriter(element, text) {
+            return new Promise((resolve) => {
+                let i = 0;
+                element.innerHTML = "";
+                const interval = setInterval(() => {
+                    if (i < text.length) {
+                        // Usamos marked aqui para processar o markdown conforme escreve, 
+                        // mas para performance de animação, simulamos caractere por caractere
+                        element.innerHTML = marked.parse(text.substring(0, i + 1));
+                        i++;
+                        const cw = document.getElementById('chatWindow');
+                        cw.scrollTop = cw.scrollHeight;
+                    } else {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 15); // Velocidade da escrita
+            });
         }
 
         function addMsgToUI(txt, cls) {
             const d = document.createElement('div');
             d.className = `message ${cls}`;
-            d.innerHTML = marked.parse(txt || "");
+            d.innerHTML = txt.includes('typing') ? txt : marked.parse(txt || "");
             const cw = document.getElementById('chatWindow');
             cw.appendChild(d);
             cw.scrollTop = cw.scrollHeight;
