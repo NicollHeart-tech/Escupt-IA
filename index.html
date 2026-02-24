@@ -28,28 +28,34 @@
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
 
         .history-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; color: white; cursor: pointer; border-radius: 10px; margin-bottom: 5px; font-size: 0.85rem; background: rgba(255,255,255,0.05); }
-        .delete-btn { opacity: 0.5; padding: 5px; transition: 0.2s; }
+        .delete-btn { opacity: 0.4; transition: 0.2s; padding: 5px; }
         .delete-btn:hover { opacity: 1; color: #ff4d4d; }
 
-        /* MAIN CONTENT CENTRALIZADO */
+        /* CONTEÚDO CENTRAL */
         #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; align-items: center; }
-        
         #chatWindow { width: 100%; max-width: 800px; flex: 1; overflow-y: auto; padding: 80px 15px 120px; display: none; flex-direction: column; gap: 20px; }
         
-        .message { max-width: 85%; padding: 14px 20px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; }
+        .message { max-width: 85%; padding: 14px 20px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; position: relative; }
         .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
         .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
 
-        /* FOOTER */
-        .footer-area { position: absolute; bottom: 0; width: 100%; padding: 15px 10px 25px; display: flex; justify-content: center; z-index: 8000; background: transparent; }
+        /* ANIMAÇÃO DE DIGITAÇÃO */
+        .typing { display: flex; align-items: center; gap: 5px; height: 17px; padding: 5px 0; }
+        .typing span { width: 8px; height: 8px; background: var(--text-color); border-radius: 50%; opacity: 0.4; animation: typingZoom 1.4s infinite ease-in-out; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingZoom { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.5); opacity: 1; } }
+
+        /* BARRA DE INPUT */
+        .footer-area { position: absolute; bottom: 0; width: 100%; padding: 15px 10px 25px; display: flex; justify-content: center; z-index: 8000; }
         .input-wrapper { width: 100%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; padding: 5px 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .input-box { flex: 1; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
 
+        /* MENU DE TEMAS */
         #theme-menu { position: absolute; top: 60px; right: 20px; background: var(--bg-input); padding: 10px; border-radius: 12px; display: none; flex-direction: column; gap: 5px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); z-index: 9999; }
         .theme-opt { background: rgba(255,255,255,0.05); border: none; color: white; padding: 10px; border-radius: 8px; cursor: pointer; text-align: left; }
-        .theme-opt:hover { background: rgba(255,255,255,0.1); }
 
-        @media (min-width: 1024px) { #sidebar { left: 0; position: relative; } .mobile-toggle { display: none; } }
+        @media (min-width: 1024px) { #sidebar { left: 0; position: relative; } .mobile-btn { display: none; } }
     </style>
 </head>
 <body data-theme="roxo">
@@ -64,36 +70,34 @@
             <div id="userInfo" style="display:none; align-items:center; gap:10px;">
                 <img id="userPhoto" style="width:30px; border-radius:50%;">
                 <span id="userName" style="font-size:0.8rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
-                <button onclick="handleLogout()" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;">✕</button>
+                <button onclick="handleLogout()" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
             </div>
-            <p id="login-warn" style="font-size:10px; opacity:0.4; text-align:center; margin-top:8px;">Conversas só salvam com login.</p>
         </div>
     </aside>
 
     <main id="main-content">
         <header style="position:absolute; top:0; width:100%; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; z-index:8000;">
-            <div class="mobile-toggle" onclick="openSidebar()" style="font-size:1.5rem; cursor:pointer;">☰</div>
+            <div class="mobile-btn" onclick="openSidebar()" style="font-size:1.5rem; cursor:pointer;">☰</div>
             <div style="font-weight:bold; letter-spacing:1px;">ESCUPT IA</div>
             <div onclick="toggleThemeMenu()" style="cursor:pointer; font-size:1.3rem;">⚙️</div>
         </header>
 
         <div id="theme-menu">
-            <button class="theme-opt" onclick="setTheme('roxo')">🟣 Tema Roxo</button>
-            <button class="theme-opt" onclick="setTheme('claro')">⚪ Tema Claro</button>
-            <button class="theme-opt" onclick="setTheme('escuro')">⚫ Tema Escuro</button>
+            <button class="theme-opt" onclick="setTheme('roxo')">🟣 Roxo</button>
+            <button class="theme-opt" onclick="setTheme('claro')">⚪ Claro</button>
+            <button class="theme-opt" onclick="setTheme('escuro')">⚫ Escuro</button>
         </div>
 
         <div class="welcome-screen" id="welcomeScreen" style="text-align:center; margin-top:30vh;">
-            <img src="logoroxa.png" style="width:80px; margin-bottom:20px; opacity:0.8;">
-            <h2 style="opacity:0.9;">Como posso ajudar hoje?</h2>
+            <h2>Como posso ajudar hoje?</h2>
         </div>
 
         <div id="chatWindow"></div>
 
         <div class="footer-area">
             <div class="input-wrapper">
-                <label for="imgInput" style="cursor:pointer; font-size:1.2rem;">🖼️</label>
-                <input type="file" id="imgInput" style="display:none;" onchange="this.parentElement.style.border='1px solid #10b981'">
+                <label for="imgInput" style="cursor:pointer;">🖼️</label>
+                <input type="file" id="imgInput" style="display:none;">
                 <input type="text" class="input-box" id="userInput" placeholder="Mensagem Escupt IA..." autocomplete="off">
             </div>
         </div>
@@ -123,16 +127,13 @@
             window.currentUser = user;
             if (user) {
                 document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('login-warn').style.display = 'none';
                 document.getElementById('userInfo').style.display = 'flex';
                 document.getElementById('userName').textContent = user.displayName;
                 document.getElementById('userPhoto').src = user.photoURL;
                 loadChatsFromLocal();
             } else {
                 document.getElementById('loginBtn').style.display = 'block';
-                document.getElementById('login-warn').style.display = 'block';
                 document.getElementById('userInfo').style.display = 'none';
-                document.getElementById('history').innerHTML = "";
             }
             renderHistory();
         });
@@ -144,7 +145,7 @@
         let currentChatId = null;
 
         function getStorageKey() {
-            return window.currentUser ? `escupt_chats_${window.currentUser.email}` : null;
+            return window.currentUser ? `chats_${window.currentUser.email}` : null;
         }
 
         function loadChatsFromLocal() {
@@ -162,30 +163,26 @@
             const hl = document.getElementById('history');
             hl.innerHTML = "";
             if(!window.currentUser) return;
-
             chats.slice().reverse().forEach(c => {
                 const d = document.createElement('div');
                 d.className = "history-item";
-                if(c.id === currentChatId) d.style.border = "1px solid rgba(255,255,255,0.2)";
-                d.innerHTML = `
-                    <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.title}</span>
-                    <span class="delete-btn" onclick="deleteChat('${c.id}', event)">🗑️</span>
-                `;
+                d.innerHTML = `<span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.title}</span>
+                               <span class="delete-btn" onclick="deleteChat('${c.id}', event)">🗑️</span>`;
                 d.onclick = () => loadChat(c.id);
                 hl.appendChild(d);
             });
         }
 
-        window.deleteChat = (id, event) => {
-            event.stopPropagation();
+        window.deleteChat = (id, e) => {
+            e.stopPropagation();
             chats = chats.filter(c => c.id != id);
             saveChatsToLocal();
-            if (currentChatId == id) startNewChat();
+            if(currentChatId == id) startNewChat();
             renderHistory();
         };
 
         async function sendMessage(text) {
-            if (!text.trim()) return;
+            if (!text.trim() || !window.currentUser) return;
             
             if (!currentChatId) {
                 currentChatId = Date.now().toString();
@@ -199,36 +196,32 @@
             const chatObj = chats.find(x => x.id === currentChatId);
             chatObj.messages.push({ text, role: 'user' });
 
-            // Balão de carregamento da IA
-            const aiDiv = addMsgToUI("...", 'ai-message');
+            const aiDiv = addMsgToUI("typing-animation", 'ai-message');
             
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        model: "EscuptIA_Oficial", 
-                        prompt: text, 
-                        stream: false 
-                    })
+                    body: JSON.stringify({ model: "EscuptIA_Oficial", prompt: text, stream: false })
                 });
-                
                 const data = await response.json();
                 aiDiv.innerHTML = marked.parse(data.response);
                 chatObj.messages.push({ text: data.response, role: 'ai' });
-                
                 saveChatsToLocal();
                 renderHistory();
             } catch (err) {
-                aiDiv.textContent = "Erro ao conectar com o servidor da IA. Verifique o Ngrok.";
-                console.error(err);
+                aiDiv.textContent = "Erro na conexão.";
             }
         }
 
         function addMsgToUI(txt, cls) {
             const d = document.createElement('div');
             d.className = `message ${cls}`;
-            d.innerHTML = txt === "..." ? "<i>Digitando...</i>" : marked.parse(txt);
+            if (txt === "typing-animation") {
+                d.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+            } else {
+                d.innerHTML = marked.parse(txt);
+            }
             const cw = document.getElementById('chatWindow');
             cw.appendChild(d);
             cw.scrollTop = cw.scrollHeight;
@@ -242,7 +235,6 @@
             const cw = document.getElementById('chatWindow');
             cw.style.display = "flex"; cw.innerHTML = "";
             c.messages.forEach(m => addMsgToUI(m.text, m.role === 'user' ? 'user-message' : 'ai-message'));
-            renderHistory();
             if(window.innerWidth < 1024) closeSidebar();
         }
 
@@ -251,7 +243,6 @@
             document.getElementById('chatWindow').innerHTML = "";
             document.getElementById('chatWindow').style.display = "none";
             document.getElementById('welcomeScreen').style.display = "block";
-            renderHistory();
         }
 
         window.toggleThemeMenu = () => {
@@ -261,7 +252,6 @@
 
         window.setTheme = (t) => {
             document.body.setAttribute('data-theme', t);
-            localStorage.setItem('escupt_theme_pref', t);
             toggleThemeMenu();
         };
 
@@ -271,10 +261,6 @@
         document.getElementById('userInput').addEventListener('keypress', (e) => { 
             if(e.key === 'Enter') { sendMessage(e.target.value); e.target.value = ""; } 
         });
-
-        // Carregar tema salvo
-        const savedTheme = localStorage.getItem('escupt_theme_pref');
-        if(savedTheme) document.body.setAttribute('data-theme', savedTheme);
     </script>
 </body>
 </html>
