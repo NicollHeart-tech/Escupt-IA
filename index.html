@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>Escupt IA</title>
     
+    <link rel="icon" type="image/png" href="logoroxa.png">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
@@ -24,110 +25,137 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-main); color: var(--text-color); height: 100vh; display: flex; overflow: hidden; }
 
-        /* SIDEBAR */
-        #sidebar { 
-            width: 260px; background-color: var(--bg-sidebar); 
-            display: flex; flex-direction: column; padding: 20px; 
-            z-index: 9000; transition: 0.3s;
-            position: fixed; left: -260px; height: 100%;
+        /* TELA DE CARREGAMENTO */
+        #splash-screen { 
+            position: fixed; inset: 0; background: var(--bg-main); 
+            display: flex; align-items: center; justify-content: center; 
+            z-index: 10000; transition: opacity 0.8s ease; 
         }
+        .loader-logo { width: 80px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } }
+
+        /* SIDEBAR */
+        #sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; padding: 20px; z-index: 9000; transition: 0.3s; position: fixed; left: -260px; height: 100%; }
         #sidebar.active { left: 0; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 8500; }
 
         /* HEADER */
-        .top-bar {
-            position: absolute; top: 0; width: 100%; height: 60px;
-            background-color: var(--bg-main);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; z-index: 8000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .menu-toggle { font-size: 1.8rem; cursor: pointer; color: var(--text-color); } 
-        
-        .settings-btn { 
-            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
-        .settings-btn img { width: 24px; height: 24px; object-fit: contain; }
-        
-        #theme-menu {
-            position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
-            padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9500; min-width: 180px;
-        }
-        .t-btn { border: none; padding: 12px; border-radius: 10px; cursor: pointer; color: white; font-weight: bold; text-align: left; }
+        .top-bar { position: absolute; top: 0; width: 100%; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 8000; }
 
         /* CONTEÚDO PRINCIPAL */
-        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; height: 100%; }
+        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
         
+        /* AJUSTE DE CENTRALIZAÇÃO DO CHAT */
         #chatWindow { 
             flex: 1; overflow-y: auto; 
             padding: 80px 15px 120px; 
-            display: none; flex-direction: column; gap: 15px; 
+            display: none; flex-direction: column; gap: 20px;
+            /* Centraliza os itens no eixo horizontal */
+            align-items: center; 
         }
-        
+
+        /* MENSAGENS NO CENTRO */
+        .message-container {
+            width: 100%;
+            max-width: 800px; /* Largura máxima da conversa no meio */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message { 
+            max-width: 85%; /* Balão ocupa no máximo 85% do corredor de 800px */
+            padding: 14px 20px; 
+            border-radius: 20px; 
+            font-size: 0.95rem; 
+            line-height: 1.5; 
+            word-wrap: break-word;
+        }
+
+        .user-message { 
+            align-self: flex-end; /* Encosta na direita do corredor central */
+            background-color: var(--msg-user); 
+            color: white; 
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message { 
+            align-self: flex-start; /* Encosta na esquerda do corredor central */
+            background-color: var(--msg-ai); 
+            color: var(--text-color); 
+            border-bottom-left-radius: 4px;
+        }
+
+        /* BEM VINDO CENTRALIZADO */
         .welcome-screen { text-align: center; margin-top: 25vh; flex: 1; }
         .welcome-screen img { width: 100px; margin-bottom: 20px; }
 
-        .message { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; position: relative; }
-        .user-message { align-self: flex-end; background-color: var(--msg-user); color: white; border-bottom-right-radius: 4px; }
-        .ai-message { align-self: flex-start; background-color: var(--msg-ai); color: var(--text-color); border-bottom-left-radius: 4px; }
-
-        /* ANIMAÇÃO DE ESCREVER */
-        .typing { display: flex; gap: 4px; padding: 10px 0; }
-        .typing span { width: 8px; height: 8px; background: var(--text-color); border-radius: 50%; opacity: 0.4; animation: blink 1.4s infinite both; }
-        .typing span:nth-child(2) { animation-delay: 0.2s; }
-        .typing span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes blink {
-            0% { opacity: 0.4; transform: scale(1); }
-            20% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0.4; transform: scale(1); }
-        }
-
         /* FOOTER */
-        .footer-area { 
-            position: absolute; bottom: 0; width: 100%; 
-            background-color: var(--bg-main); 
-            padding: 15px 10px 25px; display: flex; justify-content: center; z-index: 8000;
+        .footer-area { position: absolute; bottom: 0; width: 100%; padding: 15px 10px 25px; display: flex; justify-content: center; z-index: 8000; background: var(--bg-main); }
+        .input-wrapper { width: 100%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; padding: 5px 20px; display: flex; align-items: center; gap: 10px; }
+        .input-box { flex: 1; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
+
+        .icon-btn { cursor: pointer; opacity: 0.7; color: var(--text-color); display: flex; }
+        .icon-btn.active { color: #10b981; opacity: 1; }
+
+        /* MENUS */
+        #theme-menu, #model-menu {
+            position: fixed; top: 65px; right: 15px; background: var(--bg-input); 
+            padding: 15px; border-radius: 15px; display: none; flex-direction: column; gap: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9500; min-width: 180px;
         }
-        .input-wrapper { width: 100%; max-width: 800px; background-color: var(--bg-input); border-radius: 30px; padding: 5px 20px; }
-        .input-box { width: 100%; padding: 12px 0; background: transparent; border: none; color: var(--text-color); outline: none; font-size: 16px; }
+        .t-btn { border: none; padding: 12px; border-radius: 10px; cursor: pointer; color: white; font-weight: bold; text-align: left; background: rgba(255,255,255,0.05); }
 
         @media (min-width: 1024px) {
             #sidebar { left: 0; position: relative; }
             .top-bar { display: none; }
-            #chatWindow { padding-top: 40px; }
-            #overlay { display: none !important; }
+            #configPC { display: flex !important; }
         }
     </style>
 </head>
 <body data-theme="roxo">
 
+    <div id="splash-screen"><img src="logoroxa.png" id="splashLogo" class="loader-logo"></div>
     <div id="overlay" onclick="closeSidebar()"></div>
 
     <aside id="sidebar">
-        <button onclick="startNewChat()" style="padding:12px; border-radius:12px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); cursor:pointer; margin-bottom:15px; font-weight: bold;">Nova conversa +</button>
+        <button onclick="startNewChat()" style="padding:12px; border-radius:12px; background:rgba(255,255,255,0.1); color:white; border:none; cursor:pointer; margin-bottom:15px; font-weight: bold;">Nova conversa +</button>
         <div id="history" style="flex: 1; overflow-y: auto;"></div>
+        <div id="login-area" style="margin-top:auto; padding-top:15px; border-top:1px solid rgba(255,255,255,0.1);">
+            <button class="t-btn" style="width:100%; background:white; color:#333;" onclick="handleGoogleLogin()" id="loginBtn">Login com Google</button>
+            <div id="userInfo" style="display:none; align-items:center; gap:10px;">
+                <img id="userPhoto" style="width:30px; border-radius:50%;">
+                <span id="userName" style="font-size: 0.8rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                <span onclick="handleLogout()" style="cursor:pointer; opacity:0.5;">✕</span>
+            </div>
+            <p id="save-msg" style="font-size: 10px; opacity: 0.4; text-align: center; margin-top: 8px;">Login necessário para salvar histórico.</p>
+        </div>
     </aside>
 
     <main id="main-content">
         <header class="top-bar">
-            <div class="menu-toggle" onclick="openSidebar()">☰</div>
-            <div style="font-weight: bold; font-size: 1.1rem;">Escupt IA</div>
-            <div class="settings-btn" onclick="toggleThemeMenu()">
-                <img src="Configroxa.png" id="configIconMobile">
+            <div onclick="openSidebar()" style="font-size: 1.5rem; cursor: pointer;">☰</div>
+            <div onclick="toggleMenu('model-menu')" style="cursor:pointer; font-weight:bold; font-size:0.75rem; background:rgba(255,255,255,0.1); padding:5px 12px; border-radius:20px;">
+                🤖 <span id="currentModelDisplay">EscuptIA_Oficial</span>
             </div>
+            <img src="Configroxa.png" id="configIconMobile" onclick="toggleMenu('theme-menu')" style="width:24px; cursor:pointer;">
         </header>
 
-        <div class="settings-btn" id="configPC" style="position: absolute; top: 10px; right: 10px; display: none;" onclick="toggleThemeMenu()">
-            <img src="Configroxa.png" id="configIconPC">
+        <div id="configPC" style="position: absolute; top: 15px; right: 15px; display: none; align-items: center; gap: 10px; z-index: 8001;">
+             <div onclick="toggleMenu('model-menu')" style="cursor:pointer; font-size:0.8rem; background:rgba(255,255,255,0.1); padding:8px 15px; border-radius:20px;">
+                🤖 <span id="currentModelDisplayPC">EscuptIA_Oficial</span>
+            </div>
+            <img src="Configroxa.png" id="configIconPC" onclick="toggleMenu('theme-menu')" style="width:24px; cursor:pointer;">
         </div>
         
         <div id="theme-menu">
             <button class="t-btn" style="background:#6d28d9;" onclick="setTheme('roxo')">Roxo</button>
             <button class="t-btn" style="background:#888;" onclick="setTheme('claro')">Claro</button>
             <button class="t-btn" style="background:#1a1a1a;" onclick="setTheme('escuro')">Preto</button>
+        </div>
+
+        <div id="model-menu">
+            <button class="t-btn" onclick="setModel('EscuptIA_Oficial')">EscuptIA_Oficial</button>
+            <button class="t-btn" onclick="setModel('EscuptIA_Coder')">EscuptIA_Coder</button>
         </div>
 
         <div class="welcome-screen" id="welcomeScreen">
@@ -139,138 +167,136 @@
 
         <div class="footer-area">
             <div class="input-wrapper">
+                <label for="imgInput" class="icon-btn" id="imgLabel">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </label>
+                <input type="file" id="imgInput" accept="image/*" style="display:none;" onchange="document.getElementById('imgLabel').classList.add('active')">
                 <input type="text" class="input-box" id="userInput" placeholder="Escreva aqui..." autocomplete="off">
             </div>
         </div>
     </main>
 
     <script>
+        function hideSplash() {
+            const splash = document.getElementById('splash-screen');
+            if(splash) { splash.style.opacity = '0'; setTimeout(() => splash.style.display = 'none', 800); }
+        }
+        window.addEventListener('load', hideSplash);
+        setTimeout(hideSplash, 3000);
+
         const NGROK_URL = "https://chorographically-nonallegiance-rubye.ngrok-free.dev";
-        const MODEL_NAME = "EscuptIA_Oficial";
-        
+        let activeModel = "EscuptIA_Oficial";
         let chats = JSON.parse(localStorage.getItem('escupt_chats')) || [];
         let currentChatId = null;
+        let currentUser = JSON.parse(localStorage.getItem('escupt_user')) || null;
 
-        function setTheme(t) {
-            document.body.setAttribute('data-theme', t);
-            localStorage.setItem('escupt_theme', t);
-            document.getElementById('theme-menu').style.display = 'none';
-            const logo = document.getElementById('mainLogo');
-            const iconMobile = document.getElementById('configIconMobile');
-            const iconPC = document.getElementById('configIconPC');
-            let iconPath = "Configroxa.png";
-            if (t === 'claro') iconPath = "Configbranca.png";
-            if (t === 'escuro') iconPath = "Configescura.png";
-            if(logo) {
-                if(t === 'roxo') logo.src = "logoroxa.png";
-                else if(t === 'claro') logo.src = "logobranca.png";
-                else logo.src = "logoescura.png";
+        function handleGoogleLogin() {
+            currentUser = { name: "Usuário", photo: "https://via.placeholder.com/30" };
+            localStorage.setItem('escupt_user', JSON.stringify(currentUser));
+            updateUserUI(); renderHistory();
+        }
+
+        function handleLogout() {
+            currentUser = null; localStorage.removeItem('escupt_user');
+            updateUserUI(); renderHistory();
+        }
+
+        function updateUserUI() {
+            document.getElementById('loginBtn').style.display = currentUser ? 'none' : 'block';
+            document.getElementById('userInfo').style.display = currentUser ? 'flex' : 'none';
+            document.getElementById('save-msg').style.display = currentUser ? 'none' : 'block';
+            if(currentUser) {
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userPhoto').src = currentUser.photo;
             }
-            iconMobile.src = iconPath;
-            iconPC.src = iconPath;
         }
-
-        function checkPC() {
-            const btnPC = document.getElementById('configPC');
-            if (window.innerWidth >= 1024) { btnPC.style.display = 'flex'; } 
-            else { btnPC.style.display = 'none'; }
-        }
-        window.onresize = checkPC;
-        checkPC();
-
-        function toggleThemeMenu() {
-            const m = document.getElementById('theme-menu');
-            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function openSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display='block'; }
-        function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
 
         async function sendMessage(text) {
-            if (!text.trim()) return;
+            const imgInput = document.getElementById('imgInput');
+            if (!text.trim() && imgInput.files.length === 0) return;
+
+            let modelToSend = imgInput.files.length > 0 ? "EscuptIA_Vision" : activeModel;
+
             if (!currentChatId) {
                 currentChatId = Date.now();
                 chats.push({ id: currentChatId, title: text.substring(0, 30), messages: [] });
             }
+
             document.getElementById('welcomeScreen').style.display = "none";
             document.getElementById('chatWindow').style.display = "flex";
             
             addMsgToUI(text, 'user-message');
             saveMsg(currentChatId, text, 'user');
 
-            // Criar balão da IA com animação de digitando
-            const aiDiv = addMsgToUI('<div class="typing"><span></span><span></span><span></span></div>', 'ai-message');
+            imgInput.value = "";
+            document.getElementById('imgLabel').classList.remove('active');
+
+            const aiDiv = addMsgToUI('...', 'ai-message');
             
             try {
                 const response = await fetch(`${NGROK_URL}/api/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: MODEL_NAME, prompt: text, stream: false })
+                    body: JSON.stringify({ model: modelToSend, prompt: text, stream: false })
                 });
                 const data = await response.json();
-                
-                // Remover animação e aplicar efeito de escrita
                 aiDiv.innerHTML = "";
                 await typeWriter(aiDiv, data.response);
-                
                 saveMsg(currentChatId, data.response, 'ai');
-            } catch (err) { 
-                aiDiv.textContent = "Erro ao conectar."; 
-            }
-            renderHistory();
+            } catch (err) { aiDiv.textContent = "Erro na conexão."; }
+            if(currentUser) renderHistory();
+        }
+
+        function addMsgToUI(txt, cls) {
+            // Cria um container para cada mensagem para garantir alinhamento relativo ao centro
+            const container = document.createElement('div');
+            container.className = "message-container";
+            
+            const d = document.createElement('div');
+            d.className = `message ${cls}`;
+            d.innerHTML = txt === "..." ? '<div style="opacity:0.5">Digitando...</div>' : marked.parse(txt || "");
+            
+            container.appendChild(d);
+            const cw = document.getElementById('chatWindow');
+            cw.appendChild(container);
+            cw.scrollTop = cw.scrollHeight;
+            return d;
         }
 
         function typeWriter(element, text) {
             return new Promise((resolve) => {
                 let i = 0;
-                element.innerHTML = "";
                 const interval = setInterval(() => {
                     if (i < text.length) {
-                        // Usamos marked aqui para processar o markdown conforme escreve, 
-                        // mas para performance de animação, simulamos caractere por caractere
                         element.innerHTML = marked.parse(text.substring(0, i + 1));
                         i++;
-                        const cw = document.getElementById('chatWindow');
-                        cw.scrollTop = cw.scrollHeight;
-                    } else {
-                        clearInterval(interval);
-                        resolve();
-                    }
-                }, 15); // Velocidade da escrita
+                        document.getElementById('chatWindow').scrollTop = document.getElementById('chatWindow').scrollHeight;
+                    } else { clearInterval(interval); resolve(); }
+                }, 10);
             });
         }
 
-        function addMsgToUI(txt, cls) {
-            const d = document.createElement('div');
-            d.className = `message ${cls}`;
-            d.innerHTML = txt.includes('typing') ? txt : marked.parse(txt || "");
-            const cw = document.getElementById('chatWindow');
-            cw.appendChild(d);
-            cw.scrollTop = cw.scrollHeight;
-            return d;
-        }
-
         function saveMsg(id, text, role) {
+            if (!currentUser) return;
             const c = chats.find(x => x.id === id);
             if(c) { c.messages.push({ text, role }); localStorage.setItem('escupt_chats', JSON.stringify(chats)); }
         }
 
         function renderHistory() {
-            const hl = document.getElementById('history');
-            hl.innerHTML = "";
+            const hl = document.getElementById('history'); hl.innerHTML = "";
+            if(!currentUser) return;
             chats.slice().reverse().forEach(c => {
                 const d = document.createElement('div');
-                d.style.cssText = "padding:12px; color:white; cursor:pointer; border-radius:10px; margin-bottom:5px; font-size:0.85rem; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; background: rgba(255,255,255,0.05);";
+                d.className = "history-item";
                 if(c.id === currentChatId) d.style.background = "rgba(255,255,255,0.2)";
-                d.textContent = c.title;
+                d.innerHTML = `<span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.title}</span>`;
                 d.onclick = () => { loadChat(c.id); if(window.innerWidth < 1024) closeSidebar(); };
                 hl.appendChild(d);
             });
         }
 
         function loadChat(id) {
-            currentChatId = id; 
-            const c = chats.find(x => x.id === id);
+            currentChatId = id; const c = chats.find(x => x.id === id);
             document.getElementById('welcomeScreen').style.display = "none";
             const cw = document.getElementById('chatWindow');
             cw.style.display = "flex"; cw.innerHTML = "";
@@ -279,19 +305,42 @@
         }
 
         function startNewChat() { 
-            currentChatId = null; 
-            document.getElementById('chatWindow').innerHTML = ""; 
+            currentChatId = null; document.getElementById('chatWindow').innerHTML = ""; 
             document.getElementById('chatWindow').style.display = "none"; 
-            document.getElementById('welcomeScreen').style.display = "block"; 
-            renderHistory(); 
+            document.getElementById('welcomeScreen').style.display = "block"; renderHistory(); 
         }
+
+        function setTheme(t) {
+            document.body.setAttribute('data-theme', t);
+            localStorage.setItem('escupt_theme', t);
+            const logo = t === 'claro' ? "logobranca.png" : (t === 'escuro' ? "logoescura.png" : "logoroxa.png");
+            const conf = t === 'claro' ? "Configbranca.png" : (t === 'escuro' ? "Configescura.png" : "Configroxa.png");
+            document.getElementById('mainLogo').src = logo;
+            document.getElementById('splashLogo').src = logo;
+            document.getElementById('configIconMobile').src = conf;
+            document.getElementById('configIconPC').src = conf;
+            document.getElementById('theme-menu').style.display = 'none';
+        }
+
+        function setModel(m) {
+            activeModel = m; document.getElementById('currentModelDisplay').textContent = m;
+            document.getElementById('currentModelDisplayPC').textContent = m;
+            document.getElementById('model-menu').style.display = 'none';
+        }
+
+        function toggleMenu(id) {
+            const m = document.getElementById(id);
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function openSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').style.display='block'; }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
 
         document.getElementById('userInput').addEventListener('keypress', (e) => { 
             if(e.key === 'Enter' && e.target.value.trim()) { sendMessage(e.target.value); e.target.value = ""; } 
         });
 
-        setTheme(localStorage.getItem('escupt_theme') || 'roxo');
-        renderHistory();
+        updateUserUI(); setTheme(localStorage.getItem('escupt_theme') || 'roxo'); renderHistory();
     </script>
 </body>
 </html>
